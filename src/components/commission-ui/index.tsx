@@ -10,7 +10,7 @@ import { EmployeeSelection } from './employee-selection';
 import { MetaProductionTotal } from './metal-production-total';
 
 export const CommissionUI: FC = () => {
-  const { employeeList } = useCommission();
+  const { employeeList, submitData } = useCommission();
 
   return (
     <div className='grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8'>
@@ -35,6 +35,7 @@ export const CommissionUI: FC = () => {
           size='sm'
           variant='default'
           disabled={employeeList.filter((employee) => employee.isSelected).length === 0}
+          onClick={submitData}
         >
           Submit
         </Button>

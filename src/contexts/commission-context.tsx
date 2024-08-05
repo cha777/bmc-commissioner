@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { metadata } from '@/api';
+import { commission, metadata } from '@/api';
 import type { MetalType } from '@/types/metal-type';
 import type { Employee } from '@/types/employee';
 import type { CommissionBand } from '@/types/commission-band';
@@ -25,12 +25,14 @@ export interface CommissionContextType extends State {
   onDateUpdate: (date: Date) => void;
   onMetalQtyUpdate: (type: MetalType['id'], qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
+  submitData: () => void;
 }
 export const CommissionContext = createContext<CommissionContextType>({
   ...initialValues,
   onDateUpdate: () => {},
   onMetalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
+  submitData: () => {},
 });
 
 interface CommissionProviderProps {
@@ -93,6 +95,21 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
 
     setTriggerCalculationEffect(true);
   }, []);
+
+  const submitData = useCallback(() => {
+    commission.submitCommissionTransaction({
+      date: new Date(state.date),
+      products: state.metalTypesList.map((metalType) => ({
+        id: metalType.id,
+        price: metalType.price,
+        qty: metalType.qty,
+      })),
+      employees: state.employeeList
+        .filter((employee) => employee.isSelected)
+        .map((employee) => ({ id: employee.id, weight: employee.weight, commission: employee.commission })),
+      commissionRates: commissionBands,
+    });
+  }, [state.date, state.metalTypesList, state.employeeList, commissionBands]);
 
   useEffect(() => {
     const getMetadata = async () => {
@@ -164,6 +181,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         onDateUpdate,
         onMetalQtyUpdate,
         onEmployeeSelectionUpdate,
+        submitData,
       }}
     >
       {children}
