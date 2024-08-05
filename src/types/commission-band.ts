@@ -3,4 +3,6 @@ export interface CommissionBand {
   lowerLimit: number;
   upperLimit: number;
   rate: number;
+  desc: string;
+  updated: Date;
 }

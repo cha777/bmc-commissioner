@@ -5,9 +5,9 @@ import type { MetalType } from '@/types/metal-type';
 
 const getMetadata = async () => {
   const [employeeList, metalTypesList, commissionBands] = await Promise.all([
-    _getEmployeeList(),
-    _getMetalTypesList(),
-    _getCommissionBands(),
+    getEmployeeList(),
+    getMetalTypesList(),
+    getCommissionBands(),
   ]);
 
   return {
@@ -16,35 +16,91 @@ const getMetadata = async () => {
     commissionBands,
   };
 };
-const _getEmployeeList = async (): Promise<Employee[]> => {
+const getEmployeeList = async (): Promise<Employee[]> => {
   const employeeList: Employee[] = (await pb.collection('employees').getFullList()).map((record) => ({
     id: record.id,
     name: record.name,
     isPermanent: record.is_permanent,
+    isActive: record.is_active,
     weight: record.weight,
+    updated: new Date(record.updated),
   }));
 
   return employeeList;
 };
 
-const _getMetalTypesList = async (): Promise<MetalType[]> => {
+const getMetalTypesList = async (): Promise<MetalType[]> => {
   const metalTypesList: MetalType[] = await pb.collection('metal_types').getFullList();
   return metalTypesList;
 };
 
-const _getCommissionBands = async (): Promise<CommissionBand[]> => {
-  const commissionBands: CommissionBand[] = (await pb.collection('commission_bands').getFullList()).map((record) => ({
-    id: record.id,
-    lowerLimit: record.lower_limit === 0 && record.rate < 0 ? -Infinity : record.lower_limit,
-    upperLimit: record.upper_limit === 0 && record.rate > 0 ? Infinity : record.upper_limit,
-    rate: record.rate,
-  }));
+const getCommissionBands = async (): Promise<CommissionBand[]> => {
+  const commissionBands: CommissionBand[] = (await pb.collection('commission_bands').getFullList()).map((record) => {
+    const lowerLimit = record.lower_limit === 0 && record.rate < 0 ? -Infinity : record.lower_limit;
+    const upperLimit = record.upper_limit === 0 && record.rate > 0 ? Infinity : record.upper_limit;
+
+    let desc: string;
+
+    if (lowerLimit === -Infinity) {
+      desc = `< ${upperLimit}`;
+    } else if (upperLimit === Infinity) {
+      desc = `> ${lowerLimit}`;
+    } else {
+      desc = `${lowerLimit} - ${upperLimit}`;
+    }
+
+    return {
+      id: record.id,
+      lowerLimit,
+      upperLimit,
+      rate: record.rate,
+      desc,
+      updated: new Date(record.updated),
+    };
+  });
 
   commissionBands.sort((a, b) => a.lowerLimit - b.lowerLimit);
 
   return commissionBands;
 };
 
+const updateEmployee = async (employee: Employee): Promise<void> => {
+  await pb.collection('employees').update(employee.id, {
+    is_permanent: employee.isPermanent,
+    is_active: employee.isActive,
+    weight: employee.weight,
+  });
+};
+
+const deleteEmployee = async (id: Employee['id']): Promise<void> => {
+  await pb.collection('employees').delete(id);
+};
+
+const updateMetalType = async (metalType: MetalType): Promise<void> => {
+  await pb.collection('metal_types').update(metalType.id, metalType);
+};
+
+const deleteMetalType = async (id: MetalType['id']): Promise<void> => {
+  await pb.collection('metal_types').delete(id);
+};
+
+const updateCommissionBand = async (band: CommissionBand): Promise<void> => {
+  await pb.collection('commission_bands').update(band.id, band);
+};
+
+const deleteCommissionBand = async (id: CommissionBand['id']): Promise<void> => {
+  await pb.collection('commission_bands').delete(id);
+};
+
 export default {
   getMetadata,
+  getEmployeeList,
+  getMetalTypesList,
+  getCommissionBands,
+  updateEmployee,
+  deleteEmployee,
+  updateMetalType,
+  deleteMetalType,
+  updateCommissionBand,
+  deleteCommissionBand,
 };

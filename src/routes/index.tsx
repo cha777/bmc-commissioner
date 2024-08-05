@@ -9,6 +9,10 @@ import { Layout as AuthLayout } from '@/layouts/auth';
 const MainPage = lazy(() => import('@/pages/main'));
 const LoginPage = lazy(() => import('@/pages/auth/login'));
 
+const EmployeeListPage = lazy(() => import('@/pages/employee-list/index'));
+const MetalTypesPage = lazy(() => import('@/pages/metal-types/index'));
+const CommissionRatesPage = lazy(() => import('@/pages/commission-bands/index'));
+
 export const routes: RouteObject[] = [
   {
     path: '/',
@@ -34,5 +38,47 @@ export const routes: RouteObject[] = [
       </GuestGuard>
     ),
     children: [{ path: 'login', element: <LoginPage /> }],
+  },
+  {
+    path: 'employee-list',
+    element: (
+      <MainLayout>
+        <Outlet />
+      </MainLayout>
+    ),
+    children: [
+      {
+        index: true,
+        element: <EmployeeListPage />,
+      },
+    ],
+  },
+  {
+    path: 'metal-types',
+    element: (
+      <MainLayout>
+        <Outlet />
+      </MainLayout>
+    ),
+    children: [
+      {
+        index: true,
+        element: <MetalTypesPage />,
+      },
+    ],
+  },
+  {
+    path: 'commission-rates',
+    element: (
+      <MainLayout>
+        <Outlet />
+      </MainLayout>
+    ),
+    children: [
+      {
+        index: true,
+        element: <CommissionRatesPage />,
+      },
+    ],
   },
 ];
