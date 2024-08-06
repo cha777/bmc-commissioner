@@ -8,29 +8,29 @@ import type { CommissionBand } from '@/types/commission-band';
 interface State {
   isInitialized: boolean;
   date: number;
+  avgUnitPrice: number;
+  totalUnitsProduced: number;
   employeeList: (Employee & { isSelected: boolean; commission: number })[];
-  metalTypesList: (MetalType & { qty: number })[];
-  totalValue: number;
 }
 
 const initialValues: State = {
   isInitialized: false,
   date: 0,
+  avgUnitPrice: 0,
+  totalUnitsProduced: 0,
   employeeList: [],
-  metalTypesList: [],
-  totalValue: 0,
 };
 
 export interface CommissionContextType extends State {
   onDateUpdate: (date: Date) => void;
-  onMetalQtyUpdate: (type: MetalType['id'], qty: number) => void;
+  onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
   submitData: () => void;
 }
 export const CommissionContext = createContext<CommissionContextType>({
   ...initialValues,
   onDateUpdate: () => {},
-  onMetalQtyUpdate: () => {},
+  onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
   submitData: () => {},
 });
@@ -43,6 +43,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
   const { children } = props;
   const [state, setState] = useState<State>({ ...initialValues, date: Date.now() });
   const [commissionBands, setCommissionBands] = useState<CommissionBand[]>([]);
+  const [metalTypesList, setMetalTypesList] = useState<MetalType[]>([]);
   const [triggerCalculationEffect, setTriggerCalculationEffect] = useState(false);
 
   const positiveCommissionBands = useMemo(() => {
@@ -60,29 +61,14 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     }));
   }, []);
 
-  const onMetalQtyUpdate = useCallback(
-    (id: MetalType['id'], qty: number) => {
-      let totalValue = 0;
-      const updatedMetalTypesList = state.metalTypesList.map((metalType) => {
-        const updatedMetalType = {
-          ...metalType,
-          qty: metalType.id === id ? qty : metalType.qty,
-        };
+  const onTotalQtyUpdate = useCallback((qty: number) => {
+    setState((prev) => ({
+      ...prev,
+      totalUnitsProduced: qty,
+    }));
 
-        totalValue += updatedMetalType.price * updatedMetalType.qty;
-        return updatedMetalType;
-      });
-
-      setState((prev) => ({
-        ...prev,
-        metalTypesList: updatedMetalTypesList,
-        totalValue,
-      }));
-
-      setTriggerCalculationEffect(true);
-    },
-    [state.metalTypesList]
-  );
+    setTriggerCalculationEffect(true);
+  }, []);
 
   const onEmployeeSelectionUpdate = useCallback((id: Employee['id'], isSelected: boolean) => {
     setState((prev) => ({
@@ -99,36 +85,34 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
   const submitData = useCallback(() => {
     commission.submitCommissionTransaction({
       date: new Date(state.date),
-      products: state.metalTypesList.map((metalType) => ({
+      products: metalTypesList.map((metalType) => ({
         id: metalType.id,
         price: metalType.price,
-        qty: metalType.qty,
       })),
       employees: state.employeeList
         .filter((employee) => employee.isSelected)
         .map((employee) => ({ id: employee.id, weight: employee.weight, commission: employee.commission })),
       commissionRates: commissionBands,
     });
-  }, [state.date, state.metalTypesList, state.employeeList, commissionBands]);
+  }, [state.date, metalTypesList, state.employeeList, commissionBands]);
 
   useEffect(() => {
     const getMetadata = async () => {
       const { employeeList, metalTypesList, commissionBands } = await metadata.getMetadata();
+      const avgUnitPrice = metalTypesList.reduce((prev, curr) => prev + curr.price, 0) / metalTypesList.length;
 
       setState((prev) => ({
         ...prev,
+        avgUnitPrice,
         employeeList: employeeList.map((employee) => ({
           ...employee,
           isSelected: employee.isPermanent,
           commission: 0,
         })),
-        metalTypesList: metalTypesList.map((metalType) => ({
-          ...metalType,
-          qty: 0,
-        })),
         isInitialized: true,
       }));
 
+      setMetalTypesList(metalTypesList);
       setCommissionBands(commissionBands);
     };
 
@@ -137,23 +121,25 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
 
   useEffect(() => {
     const calculateEmployeeCommission = () => {
-      const unitsProduced = state.metalTypesList.reduce((prev, curr) => prev + curr.qty, 0);
-      const average = state.totalValue / unitsProduced;
+      const unitsProduced = state.totalUnitsProduced;
+      const average = state.avgUnitPrice;
       const employeeCount = state.employeeList.filter((employee) => employee.isSelected).length;
       let totalCommission = 0;
 
-      if (unitsProduced < negativeCommissionBands[0].upperLimit) {
-        for (const band of negativeCommissionBands) {
-          if (unitsProduced < band.upperLimit) {
-            const unitsInBand = band.upperLimit - Math.max(unitsProduced, band.lowerLimit);
-            totalCommission += average * unitsInBand * band.rate;
+      if (unitsProduced > 0) {
+        if (unitsProduced < negativeCommissionBands[0].upperLimit) {
+          for (const band of negativeCommissionBands) {
+            if (unitsProduced < band.upperLimit) {
+              const unitsInBand = band.upperLimit - Math.max(unitsProduced, band.lowerLimit);
+              totalCommission += average * unitsInBand * band.rate;
+            }
           }
-        }
-      } else if (unitsProduced > positiveCommissionBands[0].lowerLimit) {
-        for (const band of positiveCommissionBands) {
-          if (unitsProduced > band.lowerLimit) {
-            const unitsInBand = Math.min(unitsProduced, band.upperLimit) - band.lowerLimit;
-            totalCommission += average * unitsInBand * band.rate;
+        } else if (unitsProduced > positiveCommissionBands[0].lowerLimit) {
+          for (const band of positiveCommissionBands) {
+            if (unitsProduced > band.lowerLimit) {
+              const unitsInBand = Math.min(unitsProduced, band.upperLimit) - band.lowerLimit;
+              totalCommission += average * unitsInBand * band.rate;
+            }
           }
         }
       }
@@ -179,7 +165,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
       value={{
         ...state,
         onDateUpdate,
-        onMetalQtyUpdate,
+        onTotalQtyUpdate,
         onEmployeeSelectionUpdate,
         submitData,
       }}

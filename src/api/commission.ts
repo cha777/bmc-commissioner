@@ -5,7 +5,7 @@ import type { MetalType } from '@/types/metal-type';
 
 interface SubmitCommissionData {
   date: Date;
-  products: { id: MetalType['id']; price: MetalType['price']; qty: number }[];
+  products: { id: MetalType['id']; price: MetalType['price'] }[];
   employees: { id: Employee['id']; weight: Employee['weight']; commission: number }[];
   commissionRates: CommissionBand[];
 }

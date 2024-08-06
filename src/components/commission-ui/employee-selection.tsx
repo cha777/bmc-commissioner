@@ -23,7 +23,7 @@ export const EmployeeSelection: FC = () => {
             variant='outline'
             className='flex gap-2 font-bold'
           >
-            <span>{employeeList.filter((employee) => employee.isSelected).length} Employee(s) selected</span>
+            <span>{employeeList.filter((employee) => employee.isSelected).length} selected</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
