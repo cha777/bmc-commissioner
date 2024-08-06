@@ -1,0 +1,23 @@
+name: bmc-commissioner
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:80'
+    depends_on:
+      - pocketbase
+
+  pocketbase:
+    build:
+      context: 'pb'
+      dockerfile: Dockerfile
+    ports:
+      - '8090:8090'
+    volumes:
+      - pocketbase-volume:/pb/data
+
+volumes:
+  pocketbase-volume:

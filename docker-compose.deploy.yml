@@ -1,0 +1,19 @@
+name: bmc-commissioner
+
+services:
+  react-app:
+    image: bmc-commissioner-app:latest
+    ports:
+      - '8083:80'
+    depends_on:
+      - pocketbase
+
+  pocketbase:
+    image: bmc-commissioner-pocketbase:latest
+    volumes:
+      - pocketbase-volume:/pb/data
+    ports:
+      - '8084:8090'
+
+volumes:
+  pocketbase-volume:

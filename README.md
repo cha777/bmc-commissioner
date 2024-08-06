@@ -1,30 +1,39 @@
-# React + TypeScript + Vite
+# BMC Commissioner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Employee commission calculation app for Bandula Metal Crusher
 
-Currently, two official plugins are available:
+## Deployment
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This app can be deployed using Docker
 
-## Expanding the ESLint configuration
+1. Copy pocketbase pb_data and pb_migrate folders to pb folder
+2. Run following command to generate docker image tarball files and `docker-compose.yml` file in `build` folder
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-};
+```
+npm run docker:export
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+3. Copy the content in build folder to remote server
+4. Run following commands to load the docker images
+
+```
+docker load -i bmc-commissioner-app.tar
+docker load -i bmc-commissioner-pocketbase.tar
+```
+
+5. Update port mappings as needed in the docker-compose.yml file
+6. Run following command to build and run the docker container
+
+```
+docker-compose up --build --detach
+```
+
+7. Validate status of the docker container using following command
+
+```
+docker ps
+```
+
+## Author
+
+Chathuranga Mohottala – [@cha777](https://github.com/cha777) – chathuranga_wm@yahoo.com
