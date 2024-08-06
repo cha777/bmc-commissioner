@@ -1,0 +1,36 @@
+# Node modules (will be installed inside the Docker container)
+node_modules
+npm-debug.log
+
+# Logs
+logs
+*.log
+
+# Build output (avoid copying generated files)
+dist
+build
+
+# Configuration files and directories
+*.env
+*.local
+/scripts
+
+# Miscellaneous
+.DS_Store
+.git
+.gitignore
+.dockerignore
+
+# Dependency directories
+/coverage
+/ios
+/android
+.vscode
+.idea
+
+# npm
+*.tgz
+*.lock
+
+#pocketbase
+/pb
