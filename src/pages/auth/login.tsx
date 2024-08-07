@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -56,7 +57,7 @@ const Page: FC = () => {
   );
 
   return (
-    <Card className='mx-auto max-w-sm'>
+    <Card className='mx-auto max-w-sm pt-6'>
       <CardHeader>
         <CardTitle className='text-2xl'>Login</CardTitle>
         <CardDescription>Enter your credentials below to login to your account</CardDescription>
@@ -105,19 +106,25 @@ const Page: FC = () => {
                 />
               </div>
 
-              {message && (
-                <span
-                  className={`${isAuthenticating ? 'bg-blue-400' : 'bg-red-500'} flex w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm ml-auto text-primary-foreground text-center truncate overflow-hidden`}
-                >
-                  {message}
-                </span>
-              )}
               <Button
                 type='submit'
                 className='w-full'
               >
                 Login
               </Button>
+
+              <div className='h-6'>
+                {message && (
+                  <span
+                    className={cn(
+                      'flex w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm ml-auto text-primary-foreground text-center truncate overflow-hidden',
+                      isAuthenticating ? 'bg-blue-400' : 'bg-red-500 opacity-90'
+                    )}
+                  >
+                    {message}
+                  </span>
+                )}
+              </div>
             </div>
           </form>
         </Form>

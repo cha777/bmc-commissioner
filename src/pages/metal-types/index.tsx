@@ -14,6 +14,7 @@ import {
 import { DataTable } from '@/components/data-table';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { useDialogDrawer } from '@/hooks/use-dialog-drawer';
+import { LoadingIndicator } from '@/components/loading-indicator';
 import { EditForm } from './edit-metal-form';
 import { DeleteForm } from './delete-metal-form';
 import { metadata } from '@/api';
@@ -21,13 +22,17 @@ import type { MetalType } from '@/types/metal-type';
 
 const Page: FC = () => {
   const [data, setData] = useState<MetalType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const editDialog = useDialogDrawer<MetalType>();
   const deleteDialog = useDialogDrawer<MetalType>();
 
   useEffect(() => {
     const getMetalTypeList = async () => {
+      setIsLoading(true);
+
       const data = await metadata.getMetalTypesList();
       setData(data);
+      setIsLoading(false);
     };
 
     getMetalTypeList();
@@ -117,9 +122,13 @@ const Page: FC = () => {
     [onSelectDelete, onSelectEdit]
   );
 
+  if (isLoading) {
+    return <LoadingIndicator message='Fetching data ...' />;
+  }
+
   return (
     <>
-      <div className='mx-auto py-2'>
+      <div className='py-2'>
         <DataTable
           columns={columns}
           data={data}

@@ -7,6 +7,7 @@ import type { CommissionBand } from '@/types/commission-band';
 
 interface State {
   isInitialized: boolean;
+  isSubmitting: boolean;
   date: number;
   avgUnitPrice: number;
   totalUnitsProduced: number;
@@ -15,6 +16,7 @@ interface State {
 
 const initialValues: State = {
   isInitialized: false,
+  isSubmitting: false,
   date: 0,
   avgUnitPrice: 0,
   totalUnitsProduced: 0,
@@ -82,18 +84,38 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     setTriggerCalculationEffect(true);
   }, []);
 
-  const submitData = useCallback(() => {
-    commission.submitCommissionTransaction({
-      date: new Date(state.date),
-      products: metalTypesList.map((metalType) => ({
-        id: metalType.id,
-        price: metalType.price,
-      })),
-      employees: state.employeeList
-        .filter((employee) => employee.isSelected)
-        .map((employee) => ({ id: employee.id, weight: employee.weight, commission: employee.commission })),
-      commissionRates: commissionBands,
-    });
+  const submitData = useCallback(async () => {
+    try {
+      setState((prev) => ({
+        ...prev,
+        isSubmitting: true,
+      }));
+
+      await commission.submitCommissionTransaction({
+        date: new Date(state.date),
+        products: metalTypesList.map((metalType) => ({
+          id: metalType.id,
+          price: metalType.price,
+        })),
+        employees: state.employeeList
+          .filter((employee) => employee.isSelected)
+          .map((employee) => ({ id: employee.id, weight: employee.weight, commission: employee.commission })),
+        commissionRates: commissionBands,
+        units: state.totalUnitsProduced,
+      });
+
+      setState((prev) => ({
+        ...prev,
+        isSubmitting: false,
+      }));
+    } catch (e) {
+      console.error('Error while submitting commission record', e);
+
+      setState((prev) => ({
+        ...prev,
+        isSubmitting: false,
+      }));
+    }
   }, [state.date, metalTypesList, state.employeeList, commissionBands]);
 
   useEffect(() => {
