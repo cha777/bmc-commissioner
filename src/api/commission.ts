@@ -8,6 +8,7 @@ interface SubmitCommissionData {
   products: { id: MetalType['id']; price: MetalType['price'] }[];
   employees: { id: Employee['id']; weight: Employee['weight']; commission: number }[];
   commissionRates: CommissionBand[];
+  units: number;
 }
 
 const submitCommissionTransaction = async (data: SubmitCommissionData) => {
@@ -58,6 +59,7 @@ const _createDailyProductionRecord = async (data: SubmitCommissionData, employee
     commission_rates: data.commissionRates,
     employees: data.employees.map((employee) => ({ id: employee.id, weight: employee.weight })),
     employee_commissions: employeeRecordIds,
+    units: data.units,
   });
 };
 
@@ -70,6 +72,7 @@ const _rollbackEmployeeCommissionRecords = async (recordIds: string[]) => {
     }
   }
 };
+
 export default {
   submitCommissionTransaction,
 };

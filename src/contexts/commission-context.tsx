@@ -101,6 +101,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
           .filter((employee) => employee.isSelected)
           .map((employee) => ({ id: employee.id, weight: employee.weight, commission: employee.commission })),
         commissionRates: commissionBands,
+        units: state.totalUnitsProduced,
       });
 
       setState((prev) => ({
