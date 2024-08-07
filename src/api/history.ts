@@ -18,7 +18,7 @@ const getCommissionHistory = async (from: Date, to: Date) => {
 
     return {
       id: record.id as string,
-      date: new Date(record.date),
+      date: record.date,
       units: record.units as number,
       commissions: commissions.map(({ employee_id, commission, expand }) => ({
         id: employee_id,

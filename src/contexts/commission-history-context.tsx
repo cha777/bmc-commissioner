@@ -8,7 +8,7 @@ interface State {
   from: Date;
   to: Date;
   isLoading: boolean;
-  dailyProduction: { date: Date; units: number }[];
+  dailyProduction: { date: string; units: number }[];
   employeeList: (Pick<Employee, 'name' | 'id'> & { commission: number })[];
 }
 
