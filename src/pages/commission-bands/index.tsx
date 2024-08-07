@@ -14,6 +14,7 @@ import {
 import { DataTable } from '@/components/data-table';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { useDialogDrawer } from '@/hooks/use-dialog-drawer';
+import { LoadingIndicator } from '@/components/loading-indicator';
 import { EditForm } from './edit-commission-band';
 import { DeleteForm } from './delete-commission-band-form';
 import { metadata } from '@/api';
@@ -21,13 +22,17 @@ import type { CommissionBand } from '@/types/commission-band';
 
 const Page: FC = () => {
   const [data, setData] = useState<CommissionBand[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const editDialog = useDialogDrawer<CommissionBand>();
   const deleteDialog = useDialogDrawer<CommissionBand>();
 
   useEffect(() => {
     const getCommissionBands = async () => {
+      setIsLoading(true);
+
       const data = await metadata.getCommissionBands();
       setData(data);
+      setIsLoading(false);
     };
 
     getCommissionBands();
@@ -109,9 +114,13 @@ const Page: FC = () => {
     [onSelectDelete, onSelectEdit]
   );
 
+  if (isLoading) {
+    return <LoadingIndicator message='Fetching data ...' />;
+  }
+
   return (
     <>
-      <div className='mx-auto py-2'>
+      <div className='py-2'>
         <DataTable
           columns={columns}
           data={data}

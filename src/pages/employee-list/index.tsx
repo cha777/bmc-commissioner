@@ -14,6 +14,7 @@ import {
 import { DataTable } from '@/components/data-table';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { useDialogDrawer } from '@/hooks/use-dialog-drawer';
+import { LoadingIndicator } from '@/components/loading-indicator';
 import { EditForm } from './edit-employee-form';
 import { DeleteForm } from './delete-employee-form';
 import { metadata } from '@/api';
@@ -21,13 +22,17 @@ import type { Employee } from '@/types/employee';
 
 const Page: FC = () => {
   const [data, setData] = useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const editDialog = useDialogDrawer<Employee>();
   const deleteDialog = useDialogDrawer<Employee>();
 
   useEffect(() => {
     const getEmployeeList = async () => {
+      setIsLoading(true);
+
       const data = await metadata.getEmployeeList();
       setData(data);
+      setIsLoading(false);
     };
 
     getEmployeeList();
@@ -121,9 +126,13 @@ const Page: FC = () => {
     [onSelectDelete, onSelectEdit]
   );
 
+  if (isLoading) {
+    return <LoadingIndicator message='Fetching data ...' />;
+  }
+
   return (
     <>
-      <div className='mx-auto py-2'>
+      <div className='py-2'>
         <DataTable
           columns={columns}
           data={data}
