@@ -1,4 +1,6 @@
-export const SplashScreen = () => {
+import type { FC } from 'react';
+
+export const SplashScreen: FC = () => {
   return (
     <div className='bg-background w-full flex self-center items-center justify-center px-2 gap-2'>
       <svg

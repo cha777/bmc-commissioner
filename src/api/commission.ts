@@ -56,7 +56,7 @@ const _createDailyProductionRecord = async (data: SubmitCommissionData, employee
     date: data.date,
     products: data.products,
     commission_rates: data.commissionRates,
-    employees: data.employees,
+    employees: data.employees.map((employee) => ({ id: employee.id, weight: employee.weight })),
     employee_commissions: employeeRecordIds,
   });
 };

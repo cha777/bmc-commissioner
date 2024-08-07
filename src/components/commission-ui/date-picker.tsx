@@ -31,6 +31,7 @@ export const DatePicker: FC = () => {
             required
             onSelect={(date) => onDateUpdate(date as Date)}
             initialFocus
+            disabled={{ after: new Date() }}
           />
         </PopoverContent>
       </Popover>
