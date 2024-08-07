@@ -30,12 +30,12 @@ const getEmployeeList = async (): Promise<Employee[]> => {
 };
 
 const getMetalTypesList = async (): Promise<MetalType[]> => {
-  const metalTypesList: MetalType[] = await pb.collection('metal_types').getFullList();
+  const metalTypesList: MetalType[] = await pb.collection('products').getFullList();
   return metalTypesList;
 };
 
 const getCommissionBands = async (): Promise<CommissionBand[]> => {
-  const commissionBands: CommissionBand[] = (await pb.collection('commission_bands').getFullList()).map((record) => {
+  const commissionBands: CommissionBand[] = (await pb.collection('rates').getFullList()).map((record) => {
     const lowerLimit = record.lower_limit === 0 && record.rate < 0 ? -Infinity : record.lower_limit;
     const upperLimit = record.upper_limit === 0 && record.rate > 0 ? Infinity : record.upper_limit;
 
@@ -77,19 +77,19 @@ const deleteEmployee = async (id: Employee['id']): Promise<void> => {
 };
 
 const updateMetalType = async (metalType: MetalType): Promise<void> => {
-  await pb.collection('metal_types').update(metalType.id, metalType);
+  await pb.collection('products').update(metalType.id, metalType);
 };
 
 const deleteMetalType = async (id: MetalType['id']): Promise<void> => {
-  await pb.collection('metal_types').delete(id);
+  await pb.collection('products').delete(id);
 };
 
 const updateCommissionBand = async (band: CommissionBand): Promise<void> => {
-  await pb.collection('commission_bands').update(band.id, band);
+  await pb.collection('rates').update(band.id, band);
 };
 
 const deleteCommissionBand = async (id: CommissionBand['id']): Promise<void> => {
-  await pb.collection('commission_bands').delete(id);
+  await pb.collection('rates').delete(id);
 };
 
 export default {

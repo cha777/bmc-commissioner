@@ -12,33 +12,33 @@ interface SubmitCommissionData {
 }
 
 const submitCommissionTransaction = async (data: SubmitCommissionData) => {
-  let employeeRecordIds: string[] = [];
+  let salesId: string = '';
+  let commissionIds: string[] = [];
 
   try {
-    employeeRecordIds = await _createEmployeeCommissionRecords(data.date, data.employees);
+    salesId = await _createSaleRecord(data);
+    commissionIds = await _createCommissionRecords(salesId, data.employees);
 
-    if (employeeRecordIds.length !== data.employees.length) {
+    if (commissionIds.length !== data.employees.length) {
       throw new Error('Failed to create all records in daily_commissions collection');
     }
-
-    await _createDailyProductionRecord(data, employeeRecordIds);
   } catch (e) {
-    await _rollbackEmployeeCommissionRecords(employeeRecordIds);
+    await _rollbackTransaction(salesId);
     console.error('Transaction failed and rolled back:', e);
     throw e;
   }
 };
 
-const _createEmployeeCommissionRecords = async (
-  date: Date,
+const _createCommissionRecords = async (
+  saleId: string,
   employees: SubmitCommissionData['employees']
 ): Promise<string[]> => {
   const recordIds: string[] = [];
 
   try {
     for (const employee of employees) {
-      const record = await pb.collection('daily_commissions').create({
-        date: date,
+      const record = await pb.collection('commissions').create({
+        sale_id: saleId,
         employee_id: employee.id,
         commission: employee.commission,
       });
@@ -52,23 +52,22 @@ const _createEmployeeCommissionRecords = async (
   }
 };
 
-const _createDailyProductionRecord = async (data: SubmitCommissionData, employeeRecordIds: string[]) => {
-  await pb.collection('production_records').create({
+const _createSaleRecord = async (data: SubmitCommissionData) => {
+  const record = await pb.collection('sales').create({
     date: data.date,
-    products: data.products,
-    commission_rates: data.commissionRates,
-    employees: data.employees.map((employee) => ({ id: employee.id, weight: employee.weight })),
-    employee_commissions: employeeRecordIds,
     units: data.units,
   });
+
+  return record.id;
 };
 
-const _rollbackEmployeeCommissionRecords = async (recordIds: string[]) => {
-  for (const id of recordIds) {
+const _rollbackTransaction = async (saleId?: string) => {
+  // Since we have cascading deletion, deleting saleId will remove commission records in db
+  if (saleId) {
     try {
-      await pb.collection('daily_commissions').delete(id);
+      await pb.collection('sales').delete(saleId);
     } catch (e) {
-      console.error('Failed to delete record in rollback:', e);
+      console.error('Failed to delete sale record id', e);
     }
   }
 };

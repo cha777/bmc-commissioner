@@ -3,7 +3,10 @@ import { paths } from '@/paths';
 export const navConfig = [
   {
     title: 'Billing',
-    items: [{ title: 'Commission', href: paths.index }],
+    items: [
+      { title: 'Commission', href: paths.index },
+      { title: 'History', href: paths.history },
+    ],
   },
   {
     title: 'Master Data',

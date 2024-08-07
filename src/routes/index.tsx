@@ -7,6 +7,7 @@ import { Layout as MainLayout } from '@/layouts/main';
 import { Layout as AuthLayout } from '@/layouts/auth';
 
 const MainPage = lazy(() => import('@/pages/main'));
+const HistoryPage = lazy(() => import('@/pages/history/index'));
 const LoginPage = lazy(() => import('@/pages/auth/login'));
 
 const EmployeeListPage = lazy(() => import('@/pages/employee-list/index'));
@@ -25,6 +26,10 @@ export const routes: RouteObject[] = [
       {
         index: true,
         element: <MainPage />,
+      },
+      {
+        path: 'history',
+        element: <HistoryPage />,
       },
     ],
   },
