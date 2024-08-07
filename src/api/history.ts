@@ -32,7 +32,7 @@ const getCommissionHistory = async (from: Date, to: Date) => {
 };
 
 const _formatDateToISO = (date: Date) => {
-  return date.toISOString().split('T')[0]; // Convert to 'YYYY-MM-DD' format
+  return date.toISOString().replace('T', ' '); // Convert to 'YYYY-MM-DD' format
 };
 
 export default {

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useCallback, useState } from 'react';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { CalendarIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

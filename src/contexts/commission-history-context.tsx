@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { history } from '@/api';
+import { adjustToDateEnd, adjustToDateStart } from '@/lib/utils';
 import type { Employee } from '@/types/employee';
 
 interface State {
@@ -47,6 +48,9 @@ export const CommissionHistoryProvider: FC<CommissionHistoryProviderProps> = (pr
       to.setMonth(currentDate.getMonth() + 1, 0);
     }
 
+    adjustToDateStart(from);
+    adjustToDateEnd(to);
+
     return { from, to };
   }, []);
 
@@ -54,6 +58,9 @@ export const CommissionHistoryProvider: FC<CommissionHistoryProviderProps> = (pr
   const [triggerRequestEffect, setTriggerRequestEffect] = useState(false);
 
   const onDateRangeUpdate = useCallback((from: Date, to: Date) => {
+    adjustToDateStart(from);
+    adjustToDateEnd(to);
+
     setState((prev) => ({
       ...prev,
       from,
