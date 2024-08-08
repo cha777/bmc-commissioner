@@ -19,10 +19,10 @@ const { name } = packageJson;
 
 const buildDir = path.join(__dirname, '../build');
 const frontendImg = `${name}-app:latest`;
-const pocketbaseImg = `${name}-pocketbase:latest`;
+const dbImg = `${name}-db:latest`;
 
 const frontendTarFile = path.join(buildDir, `${name}-app.tar`);
-const pocketbaseTarFile = path.join(buildDir, `${name}-pocketbase.tar`);
+const dbTarFile = path.join(buildDir, `${name}-db.tar`);
 
 if (!fs.existsSync(buildDir)) {
   fs.mkdirSync(buildDir);
@@ -35,7 +35,7 @@ execSync(`docker save -o "${frontendTarFile}" ${frontendImg}`, {
   cwd: path.resolve(__dirname, '..'),
 });
 
-execSync(`docker save -o "${pocketbaseTarFile}" ${pocketbaseImg}`, {
+execSync(`docker save -o "${dbTarFile}" ${dbImg}`, {
   stdio: 'inherit',
   cwd: path.resolve(__dirname, '..'),
 });

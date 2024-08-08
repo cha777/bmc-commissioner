@@ -1,19 +1,19 @@
-name: bmc-commissioner
+# name: bmc-commissioner
 
 services:
-  react-app:
+  app:
     image: bmc-commissioner-app:latest
     ports:
       - '8083:80'
     depends_on:
-      - pocketbase
+      - db
 
-  pocketbase:
-    image: bmc-commissioner-pocketbase:latest
+  db:
+    image: bmc-commissioner-db:latest
     volumes:
-      - pocketbase-volume:/pb/data
+      - db-data:/pb/data
     ports:
       - '8084:8090'
 
 volumes:
-  pocketbase-volume:
+  db-data:

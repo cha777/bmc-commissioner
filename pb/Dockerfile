@@ -10,7 +10,7 @@ RUN apk add --no-cache \
 ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
 RUN unzip /tmp/pb.zip -d /pb/
 
-COPY pb_migrations /pb/data/pb_migrations
+# COPY pb_migrations /pb/data/pb_migrations
 COPY pb_data /pb/data/pb_data
 
 ENV DATA_DIR=/pb/data/pb_data
@@ -21,4 +21,4 @@ ENV MIGRATIONS_DIR=/pb/data/pb_migrations
 EXPOSE 8090
 
 # start PocketBase
-CMD [ "sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:8090 --dir=${DATA_DIR} --publicDir=${PUBLIC_DIR} --hooksDir=${HOOKS_DIR} --migrationsDir=${MIGRATIONS_DIR}}" ]
+CMD [ "sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:8090 --dir=${DATA_DIR} --publicDir=${PUBLIC_DIR} --hooksDir=${HOOKS_DIR} --migrationsDir=${MIGRATIONS_DIR}" ]

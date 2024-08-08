@@ -8,16 +8,16 @@ services:
     ports:
       - '8080:80'
     depends_on:
-      - pocketbase
+      - db
 
-  pocketbase:
+  db:
     build:
       context: 'pb'
       dockerfile: Dockerfile
     ports:
       - '8090:8090'
     volumes:
-      - pocketbase-volume:/pb/data
+      - db-data:/pb/data
 
 volumes:
-  pocketbase-volume:
+  db-data:
