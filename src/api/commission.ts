@@ -56,6 +56,8 @@ const _createSaleRecord = async (data: SubmitCommissionData) => {
   const record = await pb.collection('sales').create({
     date: data.date,
     units: data.units,
+    products: data.products,
+    rates: data.commissionRates,
   });
 
   return record.id;

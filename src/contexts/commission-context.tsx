@@ -116,7 +116,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         isSubmitting: false,
       }));
     }
-  }, [state.date, metalTypesList, state.employeeList, commissionBands]);
+  }, [state.date, state.employeeList, state.totalUnitsProduced, metalTypesList, commissionBands]);
 
   useEffect(() => {
     const getMetadata = async () => {
@@ -149,9 +149,9 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
       let totalCommission = 0;
 
       if (unitsProduced > 0) {
-        if (unitsProduced < negativeCommissionBands[0].upperLimit) {
+        if (unitsProduced <= negativeCommissionBands[0].upperLimit) {
           for (const band of negativeCommissionBands) {
-            if (unitsProduced < band.upperLimit) {
+            if (unitsProduced <= band.upperLimit) {
               const unitsInBand = band.upperLimit - Math.max(unitsProduced, band.lowerLimit);
               totalCommission += average * unitsInBand * band.rate;
             }
@@ -170,9 +170,11 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         ...prev,
         employeeList: prev.employeeList.map((employee) => ({
           ...employee,
-          commission: (totalCommission * employee.weight) / employeeCount,
+          commission: Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100,
         })),
       }));
+
+      console.log(state.employeeList);
     };
 
     if (triggerCalculationEffect) {

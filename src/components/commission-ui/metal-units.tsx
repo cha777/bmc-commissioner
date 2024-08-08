@@ -9,7 +9,7 @@ export const MetalUnits: FC = () => {
 
   const handleQtyChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const qty = parseInt(e.target.value, 10) || 0;
+      const qty = parseFloat(e.target.value) || 0;
       onTotalQtyUpdate(qty);
     },
     [onTotalQtyUpdate]
@@ -17,7 +17,7 @@ export const MetalUnits: FC = () => {
 
   const handleFocusOut = useCallback(
     (e: FocusEvent<HTMLInputElement>) => {
-      const qty = parseInt(e.target.value, 10);
+      const qty = parseFloat(e.target.value);
 
       if (isNaN(qty) || qty < 0) {
         onTotalQtyUpdate(0);
