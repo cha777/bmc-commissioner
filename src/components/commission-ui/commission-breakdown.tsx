@@ -24,7 +24,7 @@ export const CommissionBreakdown: FC = () => {
                       if (employee.weight > 1) {
                         return (
                           <>
-                            {employee.name} ( x <span>2.5</span>)
+                            {employee.name} ( x <span>{employee.weight}</span>)
                           </>
                         );
                       }
