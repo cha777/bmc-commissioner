@@ -1,10 +1,9 @@
-name: bmc-commissioner
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    image: bmc-commissioner-app
     ports:
       - '8080:80'
     depends_on:
@@ -14,6 +13,7 @@ services:
     build:
       context: 'pb'
       dockerfile: Dockerfile
+    image: bmc-commissioner-db
     ports:
       - '8090:8090'
     volumes:
