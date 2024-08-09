@@ -48,4 +48,4 @@ jobs:
             docker-compose -f docker-compose.yml down
             docker load -i fbmc-commissioner-app.tar
             docker load -i fbmc-commissioner-db.tar
-            docker-compose -f docker-compose.yml up --build -d
+            docker-compose -p bmc-commissioner -f docker-compose.yml up --build -d

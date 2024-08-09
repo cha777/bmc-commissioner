@@ -1,4 +1,4 @@
-name: bmc-commissioner
+# name: bmc-commissioner
 
 services:
   app:
