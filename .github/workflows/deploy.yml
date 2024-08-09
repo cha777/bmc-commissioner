@@ -15,6 +15,14 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
       - name: Export Docker images as tarballs
         run: npm run docker:export
 
