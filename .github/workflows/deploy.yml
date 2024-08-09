@@ -29,15 +29,6 @@ jobs:
       - name: Change permissions of the tarball
         run: chmod 644 ./build/bmc-commissioner-app.tar && chmod 644 ./build/bmc-commissioner-db.tar
 
-      - name: Upload tarball files as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: bmc-commissioner-artifacts
-          path: |
-            ./build/*.tar
-            ./build/*.yml
-          if-no-files-found: error
-
       - name: Upload app image file as artifact
         uses: actions/upload-artifact@v4
         with:
