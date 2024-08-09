@@ -26,6 +26,12 @@ jobs:
       - name: Export Docker images as tarballs
         run: npm run docker:export
 
+      - name: List files in build directory
+        run: ls -l ./build
+
+      - name: Change permissions of the tarball
+        run: chmod 644 ./build/bmc-commissioner-app.tar && chmod 644 ./build/bmc-commissioner-db.tar
+
       - name: Transfer tarballs and docker compose files to the server
         uses: appleboy/scp-action@v0.1.5
         with:
