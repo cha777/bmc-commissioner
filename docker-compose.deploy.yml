@@ -1,5 +1,3 @@
-# name: bmc-commissioner
-
 services:
   app:
     image: bmc-commissioner-app:latest

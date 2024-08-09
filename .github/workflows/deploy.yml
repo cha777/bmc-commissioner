@@ -1,9 +1,9 @@
-name: Deploy app with docker
+name: Build and deploy app with docker
 
 on: [push]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,11 +26,28 @@ jobs:
       - name: Export Docker images as tarballs
         run: npm run docker:export
 
-      - name: List files in build directory
-        run: ls -l ./build
-
       - name: Change permissions of the tarball
         run: chmod 644 ./build/bmc-commissioner-app.tar && chmod 644 ./build/bmc-commissioner-db.tar
+
+      - name: Upload tarball files as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: bmc-commissioner-artifacts
+          path: |
+            ./build/*.tar
+            ./build/*.yml
+          if-no-files-found: error
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download artifact files
+        uses: actions/download-artifact@v3
+        with:
+          name: bmc-commissioner-artifacts
+          path: ./build
 
       - name: Transfer tarballs and docker compose files to the server
         uses: appleboy/scp-action@v0.1.5
