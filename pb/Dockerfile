@@ -11,7 +11,7 @@ ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/po
 RUN unzip /tmp/pb.zip -d /pb/
 
 # COPY pb_migrations /pb/data/pb_migrations
-COPY pb_data /pb/data/pb_data
+# COPY pb_data /pb/data/pb_data
 
 ENV DATA_DIR=/pb/data/pb_data
 ENV PUBLIC_DIR=/pb/data/pb_public
