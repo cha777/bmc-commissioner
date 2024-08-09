@@ -1,0 +1,43 @@
+name: Deploy app with docker
+
+on: [push]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Export Docker images as tarballs
+        run: npm run docker:export
+
+      - name: Transfer tarballs and docker compose files to the server
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: './build/'
+          target: '$HOME/bmc-commissioner'
+
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd $HOME/bmc-commissioner
+            docker-compose -f docker-compose.yml down
+            docker load -i fbmc-commissioner-app.tar
+            docker load -i fbmc-commissioner-db.tar
+            docker-compose -f docker-compose.yml up --build -d
