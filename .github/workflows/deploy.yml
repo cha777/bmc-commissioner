@@ -38,15 +38,48 @@ jobs:
             ./build/*.yml
           if-no-files-found: error
 
+      - name: Upload app image file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bmc-commissioner-app.tar
+          path: ./build/bmc-commissioner-app.tar
+          if-no-files-found: error
+
+      - name: Upload db imagefiles as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bmc-commissioner-db.tar
+          path: ./build/bmc-commissioner-db.tar
+          if-no-files-found: error
+
+      - name: Upload docker compose deploy file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose.yml
+          path: ./build/docker-compose.yml
+          if-no-files-found: error
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      - name: Download artifact files
+      - name: Download app image artifact
         uses: actions/download-artifact@v4
         with:
-          name: bmc-commissioner-artifacts
+          name: bmc-commissioner-app.tar
+          path: ./build
+
+      - name: Download db image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bmc-commissioner-db.tar
+          path: ./build
+
+      - name: Download docker compose deployment file
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-compose.yml
           path: ./build
 
       - name: Transfer tarballs and docker compose files to the server
