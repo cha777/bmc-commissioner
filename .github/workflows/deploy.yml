@@ -33,21 +33,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bmc-commissioner-app.tar
-          path: ./build/bmc-commissioner-app.tar
+          path: build/bmc-commissioner-app.tar
           if-no-files-found: error
 
       - name: Upload db imagefiles as artifact
         uses: actions/upload-artifact@v4
         with:
           name: bmc-commissioner-db.tar
-          path: ./build/bmc-commissioner-db.tar
+          path: build/bmc-commissioner-db.tar
           if-no-files-found: error
 
       - name: Upload docker compose deploy file as artifact
         uses: actions/upload-artifact@v4
         with:
           name: docker-compose.yml
-          path: ./build/docker-compose.yml
+          path: build/docker-compose.yml
           if-no-files-found: error
 
   deploy:
@@ -59,19 +59,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bmc-commissioner-app.tar
-          path: ./build
+          path: build
 
       - name: Download db image artifact
         uses: actions/download-artifact@v4
         with:
           name: bmc-commissioner-db.tar
-          path: ./build
+          path: build
 
       - name: Download docker compose deployment file
         uses: actions/download-artifact@v4
         with:
           name: docker-compose.yml
-          path: ./build
+          path: build
 
       - name: Transfer tarballs and docker compose files to the server
         uses: appleboy/scp-action@v0.1.7
@@ -84,16 +84,16 @@ jobs:
           target: '$HOME/bmc-commissioner'
           strip_components: 1
 
-      # - name: SSH into server and deploy
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USERNAME }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     passphrase: ${{ secrets.SSH_PASSPHRASE }}
-      #     script: |
-      #       cd $HOME/bmc-commissioner
-      #       docker-compose -f docker-compose.yml down
-      #       docker load -i bmc-commissioner-app.tar
-      #       docker load -i bmc-commissioner-db.tar
-      #       docker-compose -p bmc-commissioner -f docker-compose.yml up --build -d
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd $HOME/bmc-commissioner
+            docker-compose -f docker-compose.yml down
+            docker load -i bmc-commissioner-app.tar
+            docker load -i bmc-commissioner-db.tar
+            docker-compose -p bmc-commissioner -f docker-compose.yml up --build -d
