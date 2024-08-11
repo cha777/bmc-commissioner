@@ -4,5 +4,5 @@ export const paths = {
   history: '/history',
   commissionRates: '/commission-rates',
   employeeList: '/employee-list',
-  metalTypes: '/metal-types',
+  productList: '/product-list',
 };

@@ -3,7 +3,7 @@ import { ActivityOverlay } from '@/components/activity-overlay';
 import { useCommissionHistory } from '@/hooks/use-commission-history';
 import { DatePicker } from './date-picker';
 import { CommissionBreakdown } from './commission-breakdown';
-import { MetalQtyChart } from './metal-qty-chart';
+import { QtyChart } from './qty-chart';
 
 export const HistoryUI: FC = () => {
   const { isLoading } = useCommissionHistory();
@@ -12,7 +12,7 @@ export const HistoryUI: FC = () => {
     <div className='relative grid auto-rows-max items-start py-2 gap-4 lg:col-span-2 lg:gap-8'>
       <DatePicker />
       <CommissionBreakdown />
-      <MetalQtyChart />
+      <QtyChart />
 
       {isLoading && (
         <ActivityOverlay className='absolute flex justify-center items-center'>

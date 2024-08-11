@@ -6,7 +6,7 @@ import { ActivityOverlay } from '@/components/activity-overlay';
 import { useCommission } from '@/hooks/use-commission';
 import { DatePicker } from './date-picker';
 import { CommissionBreakdown } from './commission-breakdown';
-import { MetalUnits } from './metal-units';
+import { ProductUnits } from './product-units';
 import { EmployeeSelection } from './employee-selection';
 
 export const CommissionUI: FC = () => {
@@ -19,7 +19,7 @@ export const CommissionUI: FC = () => {
       <Card>
         <CardContent className='pt-6'>
           <div className='grid gap-3'>
-            <MetalUnits />
+            <ProductUnits />
             <Separator />
             <EmployeeSelection />
           </div>

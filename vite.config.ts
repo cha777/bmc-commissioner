@@ -37,7 +37,7 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
-        orientation: 'portrait',
+        orientation: 'portrait-primary',
         display: 'fullscreen',
         background_color: '#0c0a09',
         theme_color: '#0c0a09',
@@ -46,6 +46,9 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

@@ -1,4 +1,4 @@
-export interface MetalType {
+export interface Product {
   id: string;
   name: string;
   price: number;

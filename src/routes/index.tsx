@@ -11,7 +11,7 @@ const HistoryPage = lazy(() => import('@/pages/history/index'));
 const LoginPage = lazy(() => import('@/pages/auth/login'));
 
 const EmployeeListPage = lazy(() => import('@/pages/employee-list/index'));
-const MetalTypesPage = lazy(() => import('@/pages/metal-types/index'));
+const ProductListPage = lazy(() => import('@/pages/product-list/index'));
 const CommissionRatesPage = lazy(() => import('@/pages/commission-bands/index'));
 
 export const routes: RouteObject[] = [
@@ -59,7 +59,7 @@ export const routes: RouteObject[] = [
     ],
   },
   {
-    path: 'metal-types',
+    path: 'product-list',
     element: (
       <MainLayout>
         <Outlet />
@@ -68,7 +68,7 @@ export const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <MetalTypesPage />,
+        element: <ProductListPage />,
       },
     ],
   },

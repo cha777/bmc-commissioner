@@ -1,11 +1,11 @@
 import pb from '@/lib/pocketbase';
 import type { CommissionBand } from '@/types/commission-band';
 import type { Employee } from '@/types/employee';
-import type { MetalType } from '@/types/metal-type';
+import type { Product } from '@/types/product';
 
 interface SubmitCommissionData {
   date: Date;
-  products: { id: MetalType['id']; price: MetalType['price'] }[];
+  products: { id: Product['id']; price: Product['price'] }[];
   employees: { id: Employee['id']; weight: Employee['weight']; commission: number }[];
   commissionRates: CommissionBand[];
   units: number;

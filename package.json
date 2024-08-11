@@ -1,7 +1,7 @@
 {
   "name": "bmc-commissioner",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,6 +23,8 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-visually-hidden": "^1.1.0",
+    "@tanstack/react-query": "^5.51.23",
+    "@tanstack/react-query-devtools": "^5.51.23",
     "@tanstack/react-table": "^8.20.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -41,7 +43,7 @@
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.1",
-    "zod": "^3.23.8"
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.12",

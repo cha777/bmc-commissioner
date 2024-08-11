@@ -1,4 +1,5 @@
 import pb from '@/lib/pocketbase';
+import { CommissionHistoryTransformer } from './transformers/commission-history-transformer';
 
 const getCommissionHistory = async (from: Date, to: Date) => {
   const results = (
@@ -9,24 +10,7 @@ const getCommissionHistory = async (from: Date, to: Date) => {
         'id,date,units,expand.commissions_via_sale_id.commission,expand.commissions_via_sale_id.employee_id,expand.commissions_via_sale_id.expand.employee_id.name',
       expand: 'commissions_via_sale_id.employee_id',
     })
-  ).map((record) => {
-    const commissions = record.expand!.commissions_via_sale_id as {
-      employee_id: string;
-      commission: number;
-      expand: { employee_id: { name: string } };
-    }[];
-
-    return {
-      id: record.id as string,
-      date: record.date,
-      units: record.units as number,
-      commissions: commissions.map(({ employee_id, commission, expand }) => ({
-        id: employee_id,
-        name: expand.employee_id.name,
-        commission,
-      })),
-    };
-  });
+  ).map(CommissionHistoryTransformer.transform);
 
   return results;
 };

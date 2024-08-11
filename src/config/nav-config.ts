@@ -12,7 +12,7 @@ export const navConfig = [
     title: 'Master Data',
     items: [
       { title: 'Employee list', href: paths.employeeList },
-      { title: 'Metal Types', href: paths.metalTypes },
+      { title: 'Product List', href: paths.productList },
       { title: 'Commission Rates', href: paths.commissionRates },
     ],
   },

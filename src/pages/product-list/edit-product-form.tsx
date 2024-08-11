@@ -1,47 +1,60 @@
 import type { FC } from 'react';
 import { useCallback, useMemo } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-
 import { metadata } from '@/api';
-import type { MetalType } from '@/types/metal-type';
+import { queryKey } from '@/utils';
+import type { Product } from '@/types/product';
 
 interface FormProps {
-  item: MetalType;
+  item: Product;
   onComplete: () => void;
 }
 
 export const EditForm: FC<FormProps> = (props) => {
   const { item, onComplete } = props;
 
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: metadata.updateProduct,
+    onSuccess: (data) => {
+      queryClient.setQueryData([queryKey.products], (oldData: Product[]) =>
+        oldData.map((_product) => (_product.id === data.id ? data : _product))
+      );
+
+      queryClient.invalidateQueries({ queryKey: [queryKey.products] });
+      onComplete();
+    },
+  });
+
   const formSchema = useMemo(() => {
-    return z.object({
-      price: z.number().min(0, 'Price should be greater than 0'),
+    return Yup.object().shape({
+      price: Yup.number().min(0, 'Price should be greater than 0'),
     });
   }, []);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<Yup.InferType<typeof formSchema>>({
+    resolver: yupResolver(formSchema),
     defaultValues: {
       price: item.price,
     },
   });
 
   const onSubmit = useCallback(
-    async (values: z.infer<typeof formSchema>) => {
-      metadata.updateMetalType({
+    async (values: Yup.InferType<typeof formSchema>) => {
+      mutation.mutate({
         ...item,
         ...values,
       });
-
-      onComplete();
     },
-    [item, onComplete]
+    [item, mutation]
   );
 
   return (
