@@ -1,6 +1,9 @@
 name: Build and deploy app with docker
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
