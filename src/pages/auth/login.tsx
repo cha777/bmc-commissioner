@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import { useCallback, useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import * as Yup from 'yup';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,12 +13,10 @@ import { useMounted } from '@/hooks/use-mounted';
 import { useSearchParams } from '@/hooks/use-search-params';
 import { paths } from '@/paths';
 
-const formSchema = z
-  .object({
-    username: z.string(),
-    password: z.string(),
-  })
-  .required();
+const formSchema = Yup.object().shape({
+  username: Yup.string().required('Username cannot be empty'),
+  password: Yup.string().required('Password cannot be empty'),
+});
 
 const Page: FC = () => {
   const isMounted = useMounted();
@@ -29,8 +27,8 @@ const Page: FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<Yup.InferType<typeof formSchema>>({
+    resolver: yupResolver(formSchema),
     defaultValues: {
       username: '',
       password: '',
@@ -38,7 +36,7 @@ const Page: FC = () => {
   });
 
   const onSubmit = useCallback(
-    async (values: z.infer<typeof formSchema>) => {
+    async (values: Yup.InferType<typeof formSchema>) => {
       try {
         setIsAuthenticating(true);
         setMessage('Authenticating');

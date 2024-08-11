@@ -1,106 +1,82 @@
 import pb from '@/lib/pocketbase';
+import { EmployeeTransformer } from '@/api/transformers/employee-transformer';
+import { ProductTransformer } from '@/api/transformers/product-transformer';
+import { CommissionBandTransformer } from '@/api/transformers/commission-band-transformer';
 import type { CommissionBand } from '@/types/commission-band';
 import type { Employee } from '@/types/employee';
-import type { MetalType } from '@/types/metal-type';
+import type { Product } from '@/types/product';
 
 const getMetadata = async () => {
-  const [employeeList, metalTypesList, commissionBands] = await Promise.all([
+  const [employeeList, productList, commissionBands] = await Promise.all([
     getEmployeeList(),
-    getMetalTypesList(),
+    getProductList(),
     getCommissionBands(),
   ]);
 
   return {
     employeeList,
-    metalTypesList,
+    productList,
     commissionBands,
   };
 };
-const getEmployeeList = async (): Promise<Employee[]> => {
-  const employeeList: Employee[] = (await pb.collection('employees').getFullList()).map((record) => ({
-    id: record.id,
-    name: record.name,
-    isPermanent: record.is_permanent,
-    isActive: record.is_active,
-    weight: record.weight,
-    updated: new Date(record.updated),
-  }));
 
+const getEmployeeList = async (): Promise<Employee[]> => {
+  const employeeList = (await pb.collection('employees').getFullList()).map(EmployeeTransformer.transform);
   return employeeList;
 };
 
-const getMetalTypesList = async (): Promise<MetalType[]> => {
-  const metalTypesList: MetalType[] = await pb.collection('products').getFullList();
-  return metalTypesList;
+const getProductList = async (): Promise<Product[]> => {
+  const productList = (await pb.collection('products').getFullList()).map(ProductTransformer.transform);
+  return productList;
 };
 
 const getCommissionBands = async (): Promise<CommissionBand[]> => {
-  const commissionBands: CommissionBand[] = (await pb.collection('rates').getFullList()).map((record) => {
-    const lowerLimit = record.lower_limit === 0 && record.rate < 0 ? -Infinity : record.lower_limit;
-    const upperLimit = record.upper_limit === 0 && record.rate > 0 ? Infinity : record.upper_limit;
-
-    let desc: string;
-
-    if (lowerLimit === -Infinity) {
-      desc = `< ${upperLimit}`;
-    } else if (upperLimit === Infinity) {
-      desc = `> ${lowerLimit}`;
-    } else {
-      desc = `${lowerLimit} - ${upperLimit}`;
-    }
-
-    return {
-      id: record.id,
-      lowerLimit,
-      upperLimit,
-      rate: record.rate,
-      desc,
-      updated: new Date(record.updated),
-    };
-  });
-
-  commissionBands.sort((a, b) => a.lowerLimit - b.lowerLimit);
+  const commissionBands: CommissionBand[] = (await pb.collection('rates').getFullList())
+    .map(CommissionBandTransformer.transform)
+    .sort((a, b) => a.lowerLimit - b.lowerLimit);
 
   return commissionBands;
 };
 
-const updateEmployee = async (employee: Employee): Promise<void> => {
-  await pb.collection('employees').update(employee.id, {
-    is_permanent: employee.isPermanent,
-    is_active: employee.isActive,
-    weight: employee.weight,
-  });
+const updateEmployee = async (employee: Employee): Promise<Employee> => {
+  return EmployeeTransformer.transform(
+    await pb.collection('employees').update(employee.id, {
+      is_permanent: employee.isPermanent,
+      is_active: employee.isActive,
+      weight: employee.weight,
+    })
+  );
 };
 
-const deleteEmployee = async (id: Employee['id']): Promise<void> => {
-  await pb.collection('employees').delete(id);
+const deleteEmployee = async (id: Employee['id']): Promise<boolean> => {
+  return await pb.collection('employees').delete(id);
 };
 
-const updateMetalType = async (metalType: MetalType): Promise<void> => {
-  await pb.collection('products').update(metalType.id, metalType);
+const updateProduct = async (product: Product): Promise<Product> => {
+  return ProductTransformer.transform(await pb.collection('products').update(product.id, product));
 };
 
-const deleteMetalType = async (id: MetalType['id']): Promise<void> => {
-  await pb.collection('products').delete(id);
+const deleteProduct = async (id: Product['id']): Promise<boolean> => {
+  return await pb.collection('products').delete(id);
 };
 
-const updateCommissionBand = async (band: CommissionBand): Promise<void> => {
-  await pb.collection('rates').update(band.id, band);
+const updateCommissionBand = async (band: CommissionBand): Promise<CommissionBand> => {
+  return CommissionBandTransformer.transform(await pb.collection('rates').update(band.id, band));
 };
 
-const deleteCommissionBand = async (id: CommissionBand['id']): Promise<void> => {
-  await pb.collection('rates').delete(id);
+const deleteCommissionBand = async (id: CommissionBand['id']): Promise<boolean> => {
+  return await pb.collection('rates').delete(id);
 };
 
 export default {
   getMetadata,
   getEmployeeList,
-  getMetalTypesList,
+  getProductList,
   getCommissionBands,
   updateEmployee,
   deleteEmployee,
-  updateMetalType,
-  deleteMetalType,
+  updateProduct,
+  deleteProduct,
   updateCommissionBand,
   deleteCommissionBand,
 };

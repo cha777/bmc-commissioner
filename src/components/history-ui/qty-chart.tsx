@@ -14,7 +14,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export const MetalQtyChart = () => {
+export const QtyChart = () => {
   const { dailyProduction } = useCommissionHistory();
 
   return (

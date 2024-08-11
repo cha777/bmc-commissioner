@@ -4,8 +4,8 @@ import numeral from 'numeral';
 import { Input } from '@/components/ui/input';
 import { useCommission } from '@/hooks/use-commission';
 
-export const MetalUnits: FC = () => {
-  const { avgUnitPrice, onTotalQtyUpdate } = useCommission();
+export const ProductUnits: FC = () => {
+  const { avgUnitPrice, totalCommission, onTotalQtyUpdate } = useCommission();
 
   const handleQtyChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +42,10 @@ export const MetalUnits: FC = () => {
           onChange={handleQtyChange}
           onBlur={handleFocusOut}
         />
+      </li>
+      <li className='flex items-center justify-between'>
+        <span className='text-muted-foreground flex-1'>Total Commission</span>
+        <span>{numeral(totalCommission).format('0,0.00')}</span>
       </li>
     </ul>
   );

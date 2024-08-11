@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetFooter, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui//scroll-area';
 import { RouterLink } from '../router-link';
@@ -51,6 +51,13 @@ export const MobileNav = () => {
             </div>
           ))}
         </ScrollArea>
+        <SheetFooter>
+          <span className='flex items-center justify-center text-muted-foreground text-sm text-center'>
+            {__APP_VERSION__}
+            <br />
+            Version
+          </span>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

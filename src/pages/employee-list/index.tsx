@@ -1,6 +1,7 @@
 import type { FC } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
@@ -18,25 +19,14 @@ import { LoadingIndicator } from '@/components/loading-indicator';
 import { EditForm } from './edit-employee-form';
 import { DeleteForm } from './delete-employee-form';
 import { metadata } from '@/api';
+import { queryKey } from '@/utils';
 import type { Employee } from '@/types/employee';
 
 const Page: FC = () => {
-  const [data, setData] = useState<Employee[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const query = useQuery({ queryKey: [queryKey.employees], queryFn: metadata.getEmployeeList });
+
   const editDialog = useDialogDrawer<Employee>();
   const deleteDialog = useDialogDrawer<Employee>();
-
-  useEffect(() => {
-    const getEmployeeList = async () => {
-      setIsLoading(true);
-
-      const data = await metadata.getEmployeeList();
-      setData(data);
-      setIsLoading(false);
-    };
-
-    getEmployeeList();
-  }, []);
 
   const onSelectEdit = useCallback(
     (employee: Employee) => {
@@ -87,12 +77,11 @@ const Page: FC = () => {
         accessorKey: 'updated',
         header: 'Updated',
         cell: ({ row }) => {
-          const date = new Date(row.getValue('updated'));
           const formatted = new Intl.DateTimeFormat('en-US', {
             dateStyle: 'short',
             timeStyle: 'short',
             hourCycle: 'h12',
-          }).format(date);
+          }).format(row.getValue('updated'));
 
           return formatted;
         },
@@ -100,7 +89,7 @@ const Page: FC = () => {
       {
         id: 'actions',
         cell: ({ row }) => {
-          const metalType = row.original;
+          const employee = row.original;
 
           return (
             <DropdownMenu>
@@ -115,8 +104,8 @@ const Page: FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => onSelectEdit(metalType)}>Edit</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSelectDelete(metalType)}>Delete</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelectEdit(employee)}>Edit</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelectDelete(employee)}>Delete</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           );
@@ -126,7 +115,7 @@ const Page: FC = () => {
     [onSelectDelete, onSelectEdit]
   );
 
-  if (isLoading) {
+  if (query.isPending) {
     return <LoadingIndicator message='Fetching data ...' />;
   }
 
@@ -135,7 +124,7 @@ const Page: FC = () => {
       <div className='py-2'>
         <DataTable
           columns={columns}
-          data={data}
+          data={query.data ?? []}
         />
       </div>
       <ResponsiveDialog

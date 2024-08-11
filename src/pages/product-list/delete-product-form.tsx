@@ -5,10 +5,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { metadata } from '@/api';
 import { queryKey } from '@/utils';
-import type { Employee } from '@/types/employee';
+import type { Product } from '@/types/product';
 
 interface FormProps {
-  item: Employee;
+  item: Product;
   onComplete: () => void;
 }
 
@@ -18,13 +18,13 @@ export const DeleteForm: FC<FormProps> = (props) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: metadata.deleteEmployee,
+    mutationFn: metadata.deleteProduct,
     onSuccess: (isSuccess, deletedId) => {
       if (isSuccess) {
-        queryClient.setQueryData([queryKey.employees], (oldData: Employee[]) =>
-          oldData.filter((_employee) => _employee.id !== deletedId)
+        queryClient.setQueryData([queryKey.products], (oldData: Product[]) =>
+          oldData.filter((_product) => _product.id !== deletedId)
         );
-        queryClient.invalidateQueries({ queryKey: [queryKey.employees] });
+        queryClient.invalidateQueries({ queryKey: [queryKey.products] });
       }
 
       onComplete();

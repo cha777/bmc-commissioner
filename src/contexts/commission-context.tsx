@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { commission, metadata } from '@/api';
-import type { MetalType } from '@/types/metal-type';
+import type { Product } from '@/types/product';
 import type { Employee } from '@/types/employee';
 import type { CommissionBand } from '@/types/commission-band';
 
@@ -11,6 +11,7 @@ interface State {
   date: number;
   avgUnitPrice: number;
   totalUnitsProduced: number;
+  totalCommission: number;
   employeeList: (Employee & { isSelected: boolean; commission: number })[];
 }
 
@@ -20,6 +21,7 @@ const initialValues: State = {
   date: 0,
   avgUnitPrice: 0,
   totalUnitsProduced: 0,
+  totalCommission: 0,
   employeeList: [],
 };
 
@@ -45,7 +47,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
   const { children } = props;
   const [state, setState] = useState<State>({ ...initialValues, date: Date.now() });
   const [commissionBands, setCommissionBands] = useState<CommissionBand[]>([]);
-  const [metalTypesList, setMetalTypesList] = useState<MetalType[]>([]);
+  const [productList, setProductList] = useState<Product[]>([]);
   const [triggerCalculationEffect, setTriggerCalculationEffect] = useState(false);
 
   const positiveCommissionBands = useMemo(() => {
@@ -93,9 +95,9 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
 
       await commission.submitCommissionTransaction({
         date: new Date(state.date),
-        products: metalTypesList.map((metalType) => ({
-          id: metalType.id,
-          price: metalType.price,
+        products: productList.map((product) => ({
+          id: product.id,
+          price: product.price,
         })),
         employees: state.employeeList
           .filter((employee) => employee.isSelected)
@@ -116,12 +118,12 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         isSubmitting: false,
       }));
     }
-  }, [state.date, state.employeeList, state.totalUnitsProduced, metalTypesList, commissionBands]);
+  }, [state.date, state.employeeList, state.totalUnitsProduced, productList, commissionBands]);
 
   useEffect(() => {
     const getMetadata = async () => {
-      const { employeeList, metalTypesList, commissionBands } = await metadata.getMetadata();
-      const avgUnitPrice = metalTypesList.reduce((prev, curr) => prev + curr.price, 0) / metalTypesList.length;
+      const { employeeList, productList, commissionBands } = await metadata.getMetadata();
+      const avgUnitPrice = productList.reduce((prev, curr) => prev + curr.price, 0) / productList.length;
 
       setState((prev) => ({
         ...prev,
@@ -134,7 +136,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         isInitialized: true,
       }));
 
-      setMetalTypesList(metalTypesList);
+      setProductList(productList);
       setCommissionBands(commissionBands);
     };
 
@@ -168,13 +170,12 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
 
       setState((prev) => ({
         ...prev,
+        totalCommission: (employeeCount * Math.round((100 * totalCommission) / employeeCount)) / 100,
         employeeList: prev.employeeList.map((employee) => ({
           ...employee,
           commission: Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100,
         })),
       }));
-
-      console.log(state.employeeList);
     };
 
     if (triggerCalculationEffect) {

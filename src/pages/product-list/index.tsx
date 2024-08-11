@@ -1,6 +1,7 @@
 import type { FC } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
@@ -15,44 +16,32 @@ import { DataTable } from '@/components/data-table';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { useDialogDrawer } from '@/hooks/use-dialog-drawer';
 import { LoadingIndicator } from '@/components/loading-indicator';
-import { EditForm } from './edit-metal-form';
-import { DeleteForm } from './delete-metal-form';
+import { EditForm } from './edit-product-form';
+import { DeleteForm } from './delete-product-form';
 import { metadata } from '@/api';
-import type { MetalType } from '@/types/metal-type';
+import { queryKey } from '@/utils';
+import type { Product } from '@/types/product';
 
 const Page: FC = () => {
-  const [data, setData] = useState<MetalType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const editDialog = useDialogDrawer<MetalType>();
-  const deleteDialog = useDialogDrawer<MetalType>();
-
-  useEffect(() => {
-    const getMetalTypeList = async () => {
-      setIsLoading(true);
-
-      const data = await metadata.getMetalTypesList();
-      setData(data);
-      setIsLoading(false);
-    };
-
-    getMetalTypeList();
-  }, []);
+  const query = useQuery({ queryKey: [queryKey.products], queryFn: metadata.getProductList });
+  const editDialog = useDialogDrawer<Product>();
+  const deleteDialog = useDialogDrawer<Product>();
 
   const onSelectEdit = useCallback(
-    (metalType: MetalType) => {
-      editDialog.handleOpen(metalType);
+    (product: Product) => {
+      editDialog.handleOpen(product);
     },
     [editDialog]
   );
 
   const onSelectDelete = useCallback(
-    (metalType: MetalType) => {
-      deleteDialog.handleOpen(metalType);
+    (product: Product) => {
+      deleteDialog.handleOpen(product);
     },
     [deleteDialog]
   );
 
-  const columns: ColumnDef<MetalType>[] = useMemo(
+  const columns: ColumnDef<Product>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
@@ -83,12 +72,11 @@ const Page: FC = () => {
         accessorKey: 'updated',
         header: 'Updated',
         cell: ({ row }) => {
-          const date = new Date(row.getValue('updated'));
           const formatted = new Intl.DateTimeFormat('en-US', {
             dateStyle: 'short',
             timeStyle: 'short',
             hourCycle: 'h12',
-          }).format(date);
+          }).format(row.getValue('updated'));
 
           return formatted;
         },
@@ -96,7 +84,7 @@ const Page: FC = () => {
       {
         id: 'actions',
         cell: ({ row }) => {
-          const metalType = row.original;
+          const product = row.original;
 
           return (
             <DropdownMenu>
@@ -111,8 +99,8 @@ const Page: FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => onSelectEdit(metalType)}>Edit Price</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSelectDelete(metalType)}>Delete</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelectEdit(product)}>Edit Price</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSelectDelete(product)}>Delete</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           );
@@ -122,7 +110,7 @@ const Page: FC = () => {
     [onSelectDelete, onSelectEdit]
   );
 
-  if (isLoading) {
+  if (query.isPending) {
     return <LoadingIndicator message='Fetching data ...' />;
   }
 
@@ -131,7 +119,7 @@ const Page: FC = () => {
       <div className='py-2'>
         <DataTable
           columns={columns}
-          data={data}
+          data={query.data ?? []}
         />
       </div>
       <ResponsiveDialog
@@ -150,7 +138,7 @@ const Page: FC = () => {
 
       <ResponsiveDialog
         open={deleteDialog.open}
-        title='Delete Metal Type'
+        title='Delete Product'
         description={`Are you sure you want to delete ${deleteDialog.data?.name}?`}
         onOpenChange={(open) => !open && deleteDialog.handleClose()}
       >

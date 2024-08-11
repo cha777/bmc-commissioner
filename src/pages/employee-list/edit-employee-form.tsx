@@ -1,8 +1,9 @@
 import type { FC } from 'react';
 import { useCallback, useMemo } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Checkbox } from '@/components/ui/checkbox';
 
 import { metadata } from '@/api';
+import { queryKey } from '@/utils';
 import type { Employee } from '@/types/employee';
 
 interface FormProps {
@@ -20,15 +22,29 @@ interface FormProps {
 export const EditForm: FC<FormProps> = (props) => {
   const { item, onComplete } = props;
 
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: metadata.updateEmployee,
+    onSuccess: (data) => {
+      queryClient.setQueryData([queryKey.employees], (oldData: Employee[]) =>
+        oldData.map((_employee) => (_employee.id === data.id ? data : _employee))
+      );
+
+      queryClient.invalidateQueries({ queryKey: [queryKey.employees] });
+      onComplete();
+    },
+  });
+
   const formSchema = useMemo(() => {
-    return z.object({
-      isPermanent: z.boolean(),
-      weight: z.number().min(0, 'Weight should be greater than 0'),
+    return Yup.object().shape({
+      isPermanent: Yup.boolean(),
+      weight: Yup.number().min(0, 'Weight should be greater than 0'),
     });
   }, []);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<Yup.InferType<typeof formSchema>>({
+    resolver: yupResolver(formSchema),
     defaultValues: {
       isPermanent: item.isPermanent,
       weight: item.weight,
@@ -36,15 +52,13 @@ export const EditForm: FC<FormProps> = (props) => {
   });
 
   const onSubmit = useCallback(
-    async (values: z.infer<typeof formSchema>) => {
-      metadata.updateEmployee({
+    async (values: Yup.InferType<typeof formSchema>) => {
+      mutation.mutate({
         ...item,
         ...values,
       });
-
-      onComplete();
     },
-    [item, onComplete]
+    [item, mutation]
   );
 
   return (
