@@ -80,7 +80,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: './build/*'
+          source: 'build/*.tar,build/*.yml'
           target: '$HOME/bmc-commissioner'
 
       # - name: SSH into server and deploy
