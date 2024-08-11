@@ -1,9 +1,6 @@
 name: Build and deploy app with docker
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
@@ -83,19 +80,19 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: './build/'
+          source: './build/*'
           target: '$HOME/bmc-commissioner'
 
-      - name: SSH into server and deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            cd $HOME/bmc-commissioner
-            docker-compose -f docker-compose.yml down
-            docker load -i bmc-commissioner-app.tar
-            docker load -i bmc-commissioner-db.tar
-            docker-compose -p bmc-commissioner -f docker-compose.yml up --build -d
+      # - name: SSH into server and deploy
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USERNAME }}
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     passphrase: ${{ secrets.SSH_PASSPHRASE }}
+      #     script: |
+      #       cd $HOME/bmc-commissioner
+      #       docker-compose -f docker-compose.yml down
+      #       docker load -i bmc-commissioner-app.tar
+      #       docker load -i bmc-commissioner-db.tar
+      #       docker-compose -p bmc-commissioner -f docker-compose.yml up --build -d
