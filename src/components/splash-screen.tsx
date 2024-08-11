@@ -2,7 +2,7 @@ import type { FC } from 'react';
 
 export const SplashScreen: FC = () => {
   return (
-    <div className='bg-background w-full flex self-center items-center justify-center px-2 gap-2'>
+    <div className='bg-background h-screen w-screen flex self-center items-center justify-center px-2 gap-2'>
       <svg
         xmlns='http://www.w3.org/2000/svg'
         width='24'
