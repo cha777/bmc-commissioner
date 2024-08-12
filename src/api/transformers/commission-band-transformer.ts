@@ -1,5 +1,5 @@
-import { CommissionBand } from '@/types/commission-band';
-import { RecordModel } from 'pocketbase';
+import type { RecordModel } from 'pocketbase';
+import type { CommissionBand } from '@/types/commission-band';
 
 export class CommissionBandTransformer {
   static transform(apiCommissionBand: RecordModel): CommissionBand {

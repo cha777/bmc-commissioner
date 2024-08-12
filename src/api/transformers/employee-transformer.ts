@@ -1,5 +1,5 @@
-import { Employee } from '@/types/employee';
-import { RecordModel } from 'pocketbase';
+import type { RecordModel } from 'pocketbase';
+import type { Employee } from '@/types/employee';
 
 export class EmployeeTransformer {
   static transform(apiEmployee: RecordModel): Employee {

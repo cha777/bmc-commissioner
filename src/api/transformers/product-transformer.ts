@@ -1,5 +1,5 @@
-import { Product } from '@/types/product';
-import { RecordModel } from 'pocketbase';
+import type { RecordModel } from 'pocketbase';
+import type { Product } from '@/types/product';
 
 export class ProductTransformer {
   static transform(apiProduct: RecordModel): Product {

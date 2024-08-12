@@ -1,9 +1,11 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { commission, metadata } from '@/api';
 import type { Product } from '@/types/product';
 import type { Employee } from '@/types/employee';
 import type { CommissionBand } from '@/types/commission-band';
+import { queryKey } from '@/utils';
 
 interface State {
   isInitialized: boolean;
@@ -49,6 +51,16 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
   const [commissionBands, setCommissionBands] = useState<CommissionBand[]>([]);
   const [productList, setProductList] = useState<Product[]>([]);
   const [triggerCalculationEffect, setTriggerCalculationEffect] = useState(false);
+
+  const metadataQueries = useQueries({
+    queries: [
+      { queryKey: [queryKey.employees], queryFn: metadata.getEmployeeList },
+      { queryKey: [queryKey.products], queryFn: metadata.getProductList },
+      { queryKey: [queryKey.commissionBands], queryFn: metadata.getCommissionBands },
+    ],
+  });
+
+  const isMetadataReady = metadataQueries.every((query) => query.isSuccess);
 
   const positiveCommissionBands = useMemo(() => {
     return commissionBands.filter((band) => band.rate > 0);
@@ -120,28 +132,35 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     }
   }, [state.date, state.employeeList, state.totalUnitsProduced, productList, commissionBands]);
 
+  /**
+   * This method will request metadata and update the context state
+   */
   useEffect(() => {
-    const getMetadata = async () => {
-      const { employeeList, productList, commissionBands } = await metadata.getMetadata();
-      const avgUnitPrice = productList.reduce((prev, curr) => prev + curr.price, 0) / productList.length;
+    if (isMetadataReady) {
+      const [employeesQuery, productsQuery, commissionBandsQuery] = metadataQueries;
+      const avgUnitPrice = productsQuery.data
+        ? productsQuery.data.reduce((prev, curr) => prev + curr.price, 0) / productsQuery.data.length
+        : 0;
 
       setState((prev) => ({
         ...prev,
         avgUnitPrice,
-        employeeList: employeeList.map((employee) => ({
-          ...employee,
-          isSelected: employee.isPermanent,
-          commission: 0,
-        })),
+        employeeList:
+          employeesQuery.data
+            ?.filter((employee) => employee.isActive)
+            .map((employee) => ({
+              ...employee,
+              isSelected: employee.isPermanent,
+              commission: 0,
+            })) ?? [],
         isInitialized: true,
       }));
 
-      setProductList(productList);
-      setCommissionBands(commissionBands);
-    };
-
-    getMetadata();
-  }, []);
+      setProductList(productsQuery.data ?? []);
+      setCommissionBands(commissionBandsQuery.data ?? []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMetadataReady]);
 
   useEffect(() => {
     const calculateEmployeeCommission = () => {
