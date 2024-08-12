@@ -14,8 +14,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export const QtyChart = () => {
-  const { dailyProduction } = useCommissionHistory();
+export const DailyCommissionChart = () => {
+  const { commissionHistory } = useCommissionHistory();
 
   return (
     <Card>
@@ -29,7 +29,7 @@ export const QtyChart = () => {
         >
           <BarChart
             accessibilityLayer
-            data={dailyProduction}
+            data={commissionHistory}
             margin={{
               left: 12,
               right: 12,

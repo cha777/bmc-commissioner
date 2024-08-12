@@ -1,23 +1,27 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { history } from '@/api';
 import { adjustToDateEnd, adjustToDateStart } from '@/lib/utils';
+import { queryKey } from '@/utils';
 import type { Employee } from '@/types/employee';
+import type { CommissionHistory, EmployeeCommission } from '@/types/commission';
 
 interface State {
   from: Date;
   to: Date;
   isLoading: boolean;
-  dailyProduction: { date: string; units: number }[];
-  employeeList: (Pick<Employee, 'name' | 'id'> & { commission: number })[];
+  commissionHistory: CommissionHistory[];
+  employeeCommissions: EmployeeCommission[];
 }
 
 const initialValues: State = {
   from: new Date(),
   to: new Date(),
   isLoading: false,
-  dailyProduction: [],
-  employeeList: [],
+  commissionHistory: [],
+  employeeCommissions: [],
 };
 
 export interface CommissionHistoryContextType extends State {
@@ -55,81 +59,75 @@ export const CommissionHistoryProvider: FC<CommissionHistoryProviderProps> = (pr
   }, []);
 
   const [state, setState] = useState<State>({ ...initialValues, ...initialPeriod });
-  const [triggerRequestEffect, setTriggerRequestEffect] = useState(false);
 
-  const onDateRangeUpdate = useCallback((from: Date, to: Date) => {
-    adjustToDateStart(from);
-    adjustToDateEnd(to);
+  const queryClient = useQueryClient();
 
-    setState((prev) => ({
-      ...prev,
-      from,
-      to,
-    }));
+  const query = useQuery({
+    queryKey: [queryKey.history],
+    queryFn: () => history.getCommissionHistory({ from: state.from, to: state.to }),
+  });
 
-    setTriggerRequestEffect(true);
-  }, []);
+  const mutation = useMutation({
+    mutationFn: history.getCommissionHistory,
+    onSuccess: (data) => {
+      queryClient.setQueryData([queryKey.history], data);
+    },
+    onError: (e) => {
+      console.error('Error while fetching commission result', e);
+
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+      }));
+    },
+  });
+
+  const onDateRangeUpdate = useCallback(
+    (from: Date, to: Date) => {
+      adjustToDateStart(from);
+      adjustToDateEnd(to);
+
+      setState((prev) => ({
+        ...prev,
+        from,
+        to,
+      }));
+
+      mutation.mutate({ from, to });
+    },
+    [mutation]
+  );
 
   useEffect(() => {
-    const populateCommissionData = async () => {
-      try {
-        setState((prev) => ({
-          ...prev,
-          isLoading: true,
-          dailyProduction: [],
-          employeeList: [],
-        }));
+    if (query.isPending) {
+      setState((prev) => ({
+        ...prev,
+        isLoading: true,
+      }));
+    } else if (query.isSuccess) {
+      const employeeMap: Map<Employee['name'], EmployeeCommission> = new Map();
 
-        const results = await history.getCommissionHistory(state.from, state.to);
-        const dailyProduction: State['dailyProduction'] = [];
-        const employeeMap: Map<Employee['name'], { id: Employee['id']; name: Employee['name']; commission: number }> =
-          new Map();
-
-        results.forEach((sale) => {
-          dailyProduction.push({
-            date: sale.date,
-            units: sale.units,
-          });
-
-          sale.commissions.forEach(({ id, name, commission }) => {
-            if (!employeeMap.has(name)) {
-              employeeMap.set(name, { id, name, commission });
-            } else {
-              employeeMap.set(name, {
-                ...employeeMap.get(name)!,
-                commission: employeeMap.get(name)!.commission + commission,
-              });
-            }
-          });
+      query.data.forEach((sale) => {
+        sale.commissions.forEach(({ id, name, commission, weight }) => {
+          if (!employeeMap.has(name)) {
+            employeeMap.set(name, { id, name, commission, weight });
+          } else {
+            employeeMap.set(name, {
+              ...employeeMap.get(name)!,
+              commission: employeeMap.get(name)!.commission + commission,
+            });
+          }
         });
+      });
 
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          dailyProduction,
-          employeeList: Array.from(employeeMap.values()),
-        }));
-      } catch (e) {
-        console.error('Error while fetching commission result', e);
-
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-        }));
-      } finally {
-        setTriggerRequestEffect(false);
-      }
-    };
-
-    if (triggerRequestEffect) {
-      populateCommissionData();
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        commissionHistory: query.data,
+        employeeCommissions: Array.from(employeeMap.values()),
+      }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [triggerRequestEffect]);
-
-  useEffect(() => {
-    setTriggerRequestEffect(true);
-  }, []);
+  }, [query.isSuccess, query.isPending, query.data]);
 
   return (
     <CommissionHistoryContext.Provider

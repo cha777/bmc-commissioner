@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+
 import { withAuthGuard } from '@/hocs/with-auth-guard';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';

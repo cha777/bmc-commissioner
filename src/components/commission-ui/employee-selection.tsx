@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -8,11 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useCommission } from '@/hooks/use-commission';
+import type { EmployeeCommission } from '@/types/commission';
+import type { Employee } from '@/types/employee';
 
-export const EmployeeSelection: FC = () => {
-  const { employeeList, onEmployeeSelectionUpdate } = useCommission();
+interface EmployeeSelectionProps {
+  employeeList: (EmployeeCommission & {
+    isSelected: boolean;
+  })[];
+  onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
+}
 
+export const EmployeeSelection: FC<EmployeeSelectionProps> = ({ employeeList, onEmployeeSelectionUpdate }) => {
   return (
     <div className='flex items-center justify-between'>
       <span className='text-muted-foreground'>Employee List</span>

@@ -1,25 +1,26 @@
 import pb from '@/lib/pocketbase';
+import type { EmployeeCommission } from '@/types/commission';
 import type { CommissionBand } from '@/types/commission-band';
-import type { Employee } from '@/types/employee';
 import type { Product } from '@/types/product';
 
 interface SubmitCommissionData {
   date: Date;
-  products: { id: Product['id']; price: Product['price'] }[];
-  employees: { id: Employee['id']; weight: Employee['weight']; commission: number }[];
-  commissionRates: CommissionBand[];
+  productList: Product[];
+  employeeList: (EmployeeCommission & { isSelected: boolean })[];
+  rates: CommissionBand[];
   units: number;
 }
 
 const submitCommissionTransaction = async (data: SubmitCommissionData) => {
   let salesId: string = '';
   let commissionIds: string[] = [];
+  const selectedEmployees = data.employeeList.filter((record) => record.isSelected);
 
   try {
     salesId = await _createSaleRecord(data);
-    commissionIds = await _createCommissionRecords(salesId, data.employees);
+    commissionIds = await _createCommissionRecords(salesId, selectedEmployees);
 
-    if (commissionIds.length !== data.employees.length) {
+    if (commissionIds.length !== selectedEmployees.length) {
       throw new Error('Failed to create all records in daily_commissions collection');
     }
   } catch (e) {
@@ -31,12 +32,12 @@ const submitCommissionTransaction = async (data: SubmitCommissionData) => {
 
 const _createCommissionRecords = async (
   saleId: string,
-  employees: SubmitCommissionData['employees']
+  employeeList: SubmitCommissionData['employeeList']
 ): Promise<string[]> => {
   const recordIds: string[] = [];
 
   try {
-    for (const employee of employees) {
+    for (const employee of employeeList) {
       const record = await pb.collection('commissions').create({
         sale_id: saleId,
         employee_id: employee.id,
@@ -56,8 +57,19 @@ const _createSaleRecord = async (data: SubmitCommissionData) => {
   const record = await pb.collection('sales').create({
     date: data.date,
     units: data.units,
-    products: data.products,
-    rates: data.commissionRates,
+    products: data.productList.map((record) => ({ id: record.id, name: record.name, price: record.price })),
+    rates: data.rates.map((record) => ({
+      id: record.id,
+      lower_limit: record.lowerLimit,
+      upper_limit: record.upperLimit,
+      rate: record.rate,
+    })),
+    employees: data.employeeList.map((record) => ({
+      id: record.id,
+      name: record.name,
+      weight: record.weight,
+      isSelected: record.isSelected,
+    })),
   });
 
   return record.id;

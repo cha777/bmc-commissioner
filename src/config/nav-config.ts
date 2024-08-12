@@ -5,7 +5,7 @@ export const navConfig = [
     title: 'Billing',
     items: [
       { title: 'Commission', href: paths.index },
-      { title: 'History', href: paths.history },
+      { title: 'History', href: paths.history.index },
     ],
   },
   {

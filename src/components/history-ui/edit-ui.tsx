@@ -1,16 +1,16 @@
-import type { FC } from 'react';
-
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { FC } from 'react';
+import { Card, CardContent } from '@/components//ui/card';
+import { Button } from '@/components//ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ActivityOverlay } from '@/components/activity-overlay';
-import { useCommission } from '@/hooks/use-commission';
-import { DatePicker } from './date-picker';
-import { CommissionBreakdown } from './commission-breakdown';
-import { ProductUnits } from './product-units';
-import { EmployeeSelection } from './employee-selection';
 
-export const CommissionUI: FC = () => {
+import { ActivityOverlay } from '@/components/activity-overlay';
+import { DatePicker } from '@/components//commission-ui/date-picker';
+import { CommissionBreakdown } from '@/components/commission-ui/commission-breakdown';
+import { EmployeeSelection } from '@/components/commission-ui/employee-selection';
+import { ProductUnits } from '@/components/commission-ui/product-units';
+import { useCommissionEdit } from '@/hooks/use-commission-history-edit';
+
+export const CommissionEditUi: FC = () => {
   const {
     avgUnitPrice,
     date,
@@ -18,17 +18,16 @@ export const CommissionUI: FC = () => {
     totalCommission,
     totalUnitsProduced,
     isSubmitting,
-    onDateUpdate,
     onEmployeeSelectionUpdate,
     onTotalQtyUpdate,
     submitData,
-  } = useCommission();
+  } = useCommissionEdit();
 
   return (
     <div className='relative grid auto-rows-max items-start py-2 gap-4 lg:col-span-2 lg:gap-8'>
       <DatePicker
         date={new Date(date)}
-        onDateUpdate={onDateUpdate}
+        disabled={true}
       />
 
       <Card>
@@ -37,6 +36,7 @@ export const CommissionUI: FC = () => {
             <ProductUnits
               avgUnitPrice={avgUnitPrice}
               totalCommission={totalCommission}
+              units={totalUnitsProduced}
               onTotalQtyUpdate={onTotalQtyUpdate}
             />
             <Separator />
@@ -57,7 +57,7 @@ export const CommissionUI: FC = () => {
           disabled={employeeList.filter((employee) => employee.isSelected).length === 0 || totalUnitsProduced === 0}
           onClick={submitData}
         >
-          Submit
+          Update
         </Button>
       </div>
 

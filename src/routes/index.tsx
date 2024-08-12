@@ -2,12 +2,14 @@
 import { lazy } from 'react';
 import type { RouteObject } from 'react-router';
 import { Outlet } from 'react-router-dom';
+
 import { GuestGuard } from '@/guards/guest-guard';
 import { Layout as MainLayout } from '@/layouts/main';
 import { Layout as AuthLayout } from '@/layouts/auth';
 
 const MainPage = lazy(() => import('@/pages/main'));
 const HistoryPage = lazy(() => import('@/pages/history/index'));
+const EditHistoryPage = lazy(() => import('@/pages/history/edit-history'));
 const LoginPage = lazy(() => import('@/pages/auth/login'));
 
 const EmployeeListPage = lazy(() => import('@/pages/employee-list/index'));
@@ -29,8 +31,20 @@ export const routes: RouteObject[] = [
       },
       {
         path: 'history',
-        element: <HistoryPage />,
+        children: [
+          {
+            index: true,
+            element: <HistoryPage />,
+          },
+          {
+            path: ':id',
+            element: <EditHistoryPage />,
+          },
+        ],
       },
+      { path: 'employee-list', element: <EmployeeListPage /> },
+      { path: 'product-list', element: <ProductListPage /> },
+      { path: 'commission-rates', element: <CommissionRatesPage /> },
     ],
   },
   {
@@ -43,47 +57,5 @@ export const routes: RouteObject[] = [
       </GuestGuard>
     ),
     children: [{ path: 'login', element: <LoginPage /> }],
-  },
-  {
-    path: 'employee-list',
-    element: (
-      <MainLayout>
-        <Outlet />
-      </MainLayout>
-    ),
-    children: [
-      {
-        index: true,
-        element: <EmployeeListPage />,
-      },
-    ],
-  },
-  {
-    path: 'product-list',
-    element: (
-      <MainLayout>
-        <Outlet />
-      </MainLayout>
-    ),
-    children: [
-      {
-        index: true,
-        element: <ProductListPage />,
-      },
-    ],
-  },
-  {
-    path: 'commission-rates',
-    element: (
-      <MainLayout>
-        <Outlet />
-      </MainLayout>
-    ),
-    children: [
-      {
-        index: true,
-        element: <CommissionRatesPage />,
-      },
-    ],
   },
 ];

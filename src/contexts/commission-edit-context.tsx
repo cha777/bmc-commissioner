@@ -1,8 +1,8 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import { commission, metadata } from '@/api';
+import { history } from '@/api';
 import { queryKey } from '@/utils';
 import type { Product } from '@/types/product';
 import type { Employee } from '@/types/employee';
@@ -29,40 +29,31 @@ const initialValues: State = {
   employeeList: [],
 };
 
-export interface CommissionContextType extends State {
-  onDateUpdate: (date: Date) => void;
+export interface CommissionEditContextType extends State {
   onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
   submitData: () => void;
 }
-export const CommissionContext = createContext<CommissionContextType>({
+export const CommissionEditContext = createContext<CommissionEditContextType>({
   ...initialValues,
-  onDateUpdate: () => {},
   onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
   submitData: () => {},
 });
 
-interface CommissionProviderProps {
+interface CommissionEditProviderProps {
   children: ReactNode;
+  id: string;
 }
 
-export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
-  const { children } = props;
+export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) => {
+  const { children, id } = props;
   const [state, setState] = useState<State>({ ...initialValues, date: Date.now() });
-  const [commissionBands, setCommissionBands] = useState<CommissionBand[]>([]);
-  const [productList, setProductList] = useState<Product[]>([]);
+  const [commissionBands, setCommissionBands] = useState<Omit<CommissionBand, 'updated'>[]>([]);
+  const [productList, setProductList] = useState<Omit<Product, 'updated'>[]>([]);
   const [triggerCalculationEffect, setTriggerCalculationEffect] = useState(false);
 
-  const metadataQueries = useQueries({
-    queries: [
-      { queryKey: [queryKey.employees], queryFn: metadata.getEmployeeList },
-      { queryKey: [queryKey.products], queryFn: metadata.getProductList },
-      { queryKey: [queryKey.commissionBands], queryFn: metadata.getCommissionBands },
-    ],
-  });
-
-  const isMetadataReady = metadataQueries.every((query) => query.isSuccess);
+  const query = useQuery({ queryKey: [queryKey.history, id], queryFn: () => history.getCommissionRecordById(id) });
 
   const positiveCommissionBands = useMemo(() => {
     return commissionBands.filter((band) => band.rate > 0);
@@ -71,13 +62,6 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
   const negativeCommissionBands = useMemo(() => {
     return commissionBands.filter((band) => band.rate < 0).reverse();
   }, [commissionBands]);
-
-  const onDateUpdate = useCallback((date: Date) => {
-    setState((prev) => ({
-      ...prev,
-      date: date.getTime(),
-    }));
-  }, []);
 
   const onTotalQtyUpdate = useCallback((qty: number) => {
     setState((prev) => ({
@@ -107,13 +91,19 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         isSubmitting: true,
       }));
 
-      await commission.submitCommissionTransaction({
-        date: new Date(state.date),
-        productList,
-        employeeList: state.employeeList,
-        rates: commissionBands,
-        units: state.totalUnitsProduced,
-      });
+      // TODO: Implement update method
+      // await history.updateCommissionRecord({
+      //   date: new Date(state.date),
+      //   products: productList.map((product) => ({
+      //     id: product.id,
+      //     price: product.price,
+      //   })),
+      //   employees: state.employeeList
+      //     .filter((employee) => employee.isSelected)
+      //     .map((employee) => ({ id: employee.id, weight: employee.weight, commission: employee.commission })),
+      //   commissionRates: commissionBands,
+      //   units: state.totalUnitsProduced,
+      // });
 
       setState((prev) => ({
         ...prev,
@@ -133,31 +123,23 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
    * This method will request metadata and update the context state
    */
   useEffect(() => {
-    if (isMetadataReady) {
-      const [employeesQuery, productsQuery, commissionBandsQuery] = metadataQueries;
-      const avgUnitPrice = productsQuery.data
-        ? productsQuery.data.reduce((prev, curr) => prev + curr.price, 0) / productsQuery.data.length
-        : 0;
+    if (query.isSuccess) {
+      setProductList(query.data.products);
+      setCommissionBands(query.data.rates);
+
+      const avgUnitPrice =
+        query.data.products.reduce((prev, curr) => prev + curr.price, 0) / query.data.products.length;
 
       setState((prev) => ({
         ...prev,
         avgUnitPrice,
-        employeeList:
-          employeesQuery.data
-            ?.filter((employee) => employee.isActive)
-            .map((employee) => ({
-              ...employee,
-              isSelected: employee.isPermanent,
-              commission: 0,
-            })) ?? [],
+        totalUnitsProduced: query.data.units,
+        totalCommission: query.data.totalCommission,
+        employeeList: query.data.commissions,
         isInitialized: true,
       }));
-
-      setProductList(productsQuery.data ?? []);
-      setCommissionBands(commissionBandsQuery.data ?? []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMetadataReady]);
+  }, [query.isPending, query.isSuccess, query.data]);
 
   useEffect(() => {
     const calculateEmployeeCommission = () => {
@@ -204,18 +186,17 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
   }, [triggerCalculationEffect]);
 
   return (
-    <CommissionContext.Provider
+    <CommissionEditContext.Provider
       value={{
         ...state,
-        onDateUpdate,
         onTotalQtyUpdate,
         onEmployeeSelectionUpdate,
         submitData,
       }}
     >
       {children}
-    </CommissionContext.Provider>
+    </CommissionEditContext.Provider>
   );
 };
 
-export const CommissionConsumer = CommissionContext.Consumer;
+export const CommissionEditConsumer = CommissionEditContext.Consumer;

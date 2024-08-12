@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { cn } from '@/lib/utils';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useAuth } from '@/hooks/use-auth';
 import { useMounted } from '@/hooks/use-mounted';
 import { useSearchParams } from '@/hooks/use-search-params';
+import { cn } from '@/lib/utils';
 import { paths } from '@/paths';
 
 const formSchema = Yup.object().shape({

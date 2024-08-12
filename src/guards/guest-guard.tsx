@@ -1,5 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import { useCallback, useEffect, useState } from 'react';
+
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from '@/hooks/use-router';
 import { paths } from '@/paths';

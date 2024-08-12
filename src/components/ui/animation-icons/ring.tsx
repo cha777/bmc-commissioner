@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
 import type { FC, SVGProps } from 'react';
+import { cn } from '@/lib/utils';
 
 interface RingAnimationProps extends SVGProps<SVGSVGElement> {
   width?: number;

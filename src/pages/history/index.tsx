@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+
 import { CommissionHistoryProvider } from '@/contexts/commission-history-context';
 import { HistoryUI } from '@/components/history-ui';
 
