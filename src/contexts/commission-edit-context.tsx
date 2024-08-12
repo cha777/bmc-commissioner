@@ -1,13 +1,13 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { history } from '@/api';
+import { commission, history } from '@/api';
+import { useRouter } from '@/hooks/use-router';
 import { queryKey } from '@/utils';
-import type { Product } from '@/types/product';
 import type { Employee } from '@/types/employee';
 import type { CommissionBand } from '@/types/commission-band';
-import type { EmployeeCommission } from '@/types/commission';
+import type { EmployeeCommissionRecord } from '@/types/commission';
 
 interface State {
   isInitialized: boolean;
@@ -16,7 +16,7 @@ interface State {
   avgUnitPrice: number;
   totalUnitsProduced: number;
   totalCommission: number;
-  employeeList: (EmployeeCommission & { isSelected: boolean })[];
+  employeeList: EmployeeCommissionRecord[];
 }
 
 const initialValues: State = {
@@ -34,6 +34,7 @@ export interface CommissionEditContextType extends State {
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
   submitData: () => void;
 }
+
 export const CommissionEditContext = createContext<CommissionEditContextType>({
   ...initialValues,
   onTotalQtyUpdate: () => {},
@@ -50,10 +51,17 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
   const { children, id } = props;
   const [state, setState] = useState<State>({ ...initialValues, date: Date.now() });
   const [commissionBands, setCommissionBands] = useState<Omit<CommissionBand, 'updated'>[]>([]);
-  const [productList, setProductList] = useState<Omit<Product, 'updated'>[]>([]);
   const [triggerCalculationEffect, setTriggerCalculationEffect] = useState(false);
 
-  const query = useQuery({ queryKey: [queryKey.history, id], queryFn: () => history.getCommissionRecordById(id) });
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: [queryKey.history, id],
+    queryFn: () => history.getCommissionRecordById(id),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    staleTime: 1000 * 60 * 1,
+  });
 
   const positiveCommissionBands = useMemo(() => {
     return commissionBands.filter((band) => band.rate > 0);
@@ -91,19 +99,11 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         isSubmitting: true,
       }));
 
-      // TODO: Implement update method
-      // await history.updateCommissionRecord({
-      //   date: new Date(state.date),
-      //   products: productList.map((product) => ({
-      //     id: product.id,
-      //     price: product.price,
-      //   })),
-      //   employees: state.employeeList
-      //     .filter((employee) => employee.isSelected)
-      //     .map((employee) => ({ id: employee.id, weight: employee.weight, commission: employee.commission })),
-      //   commissionRates: commissionBands,
-      //   units: state.totalUnitsProduced,
-      // });
+      await commission.updateCommissionTransaction({
+        id,
+        units: state.totalUnitsProduced,
+        employeeList: state.employeeList,
+      });
 
       setState((prev) => ({
         ...prev,
@@ -116,15 +116,17 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         ...prev,
         isSubmitting: false,
       }));
+    } finally {
+      queryClient.invalidateQueries({ queryKey: [queryKey.history] });
+      router.back();
     }
-  }, [state.date, state.employeeList, state.totalUnitsProduced, productList, commissionBands]);
+  }, [id, state.totalUnitsProduced, state.employeeList, queryClient, router]);
 
   /**
    * This method will request metadata and update the context state
    */
   useEffect(() => {
     if (query.isSuccess) {
-      setProductList(query.data.products);
       setCommissionBands(query.data.rates);
 
       const avgUnitPrice =

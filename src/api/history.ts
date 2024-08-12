@@ -36,6 +36,7 @@ const getCommissionRecordById = async (id: CommissionHistory['id']): Promise<Com
     'expand.commissions_via_sale_id.id',
     'expand.commissions_via_sale_id.commission',
     'expand.commissions_via_sale_id.employee_id',
+    'expand.commissions_via_sale_id.expand.employee_id.weight',
   ];
 
   const result = CommissionHistoryDetailTransformer.transform(
@@ -48,15 +49,6 @@ const getCommissionRecordById = async (id: CommissionHistory['id']): Promise<Com
   return result;
 };
 
-// TODO: Implement update method
-const updateCommissionRecord = async (record: CommissionHistory): Promise<CommissionHistory> => {
-  return CommissionHistoryTransformer.transform(await pb.collection('sales').update(record.id, record));
-};
-
-const deleteCommissionRecord = async (id: CommissionHistory['id']): Promise<boolean> => {
-  return await pb.collection('sales').delete(id);
-};
-
 const _formatDateToISO = (date: Date) => {
   return date.toISOString().replace('T', ' '); // Convert to 'YYYY-MM-DD' format
 };
@@ -64,6 +56,4 @@ const _formatDateToISO = (date: Date) => {
 export default {
   getCommissionHistory,
   getCommissionRecordById,
-  updateCommissionRecord,
-  deleteCommissionRecord,
 };

@@ -2,7 +2,7 @@ import type { RecordModel } from 'pocketbase';
 
 import { CommissionBandTransformer } from './commission-band-transformer';
 import { ProductTransformer } from './product-transformer';
-import type { CommissionHistoryDetail, EmployeeCommissionSelection } from '@/types/commission';
+import type { CommissionHistoryDetail, EmployeeCommissionRecord } from '@/types/commission';
 
 export class CommissionHistoryDetailTransformer {
   static transform(record: RecordModel): CommissionHistoryDetail {
@@ -13,15 +13,15 @@ export class CommissionHistoryDetailTransformer {
       expand: { employee_id: { name: string; weight: number } };
     }[];
 
-    const employeeCommissionMap = new Map<EmployeeCommissionSelection['id'], EmployeeCommissionSelection>();
+    const employeeCommissionMap = new Map<EmployeeCommissionRecord['id'], EmployeeCommissionRecord>();
 
-    (record.employees as EmployeeCommissionSelection[]).forEach((employee) => {
+    (record.employees as EmployeeCommissionRecord[]).forEach((employee) => {
       employeeCommissionMap.set(employee.id, { ...employee, commission: 0 });
     });
 
     let totalCommission = 0;
 
-    commissionRecords.forEach(({ id, employee_id, commission }) => {
+    commissionRecords.forEach(({ id, employee_id, commission, expand }) => {
       const employeeCommission = employeeCommissionMap.get(employee_id);
 
       if (employeeCommission) {
@@ -29,6 +29,7 @@ export class CommissionHistoryDetailTransformer {
           ...employeeCommission,
           commissionId: id,
           commission,
+          weight: expand.employee_id.weight,
         });
       } else {
         console.warn('New employee record');

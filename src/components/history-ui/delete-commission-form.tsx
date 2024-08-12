@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
-import { history } from '@/api';
+import { commission } from '@/api';
 import { queryKey } from '@/utils';
 import type { CommissionHistory } from '@/types/commission';
 
@@ -18,7 +18,7 @@ export const DeleteCommissionForm: FC<FormProps> = (props) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: history.deleteCommissionRecord,
+    mutationFn: commission.deleteCommissionRecord,
     onSuccess: (isSuccess, deletedId) => {
       if (isSuccess) {
         queryClient.setQueryData([queryKey.history], (oldData: CommissionHistory[]) =>

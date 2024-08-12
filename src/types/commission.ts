@@ -6,7 +6,7 @@ export interface EmployeeCommission extends Pick<Employee, 'id' | 'name' | 'weig
   commission: number;
 }
 
-export type EmployeeCommissionSelection = EmployeeCommission & { commissionId: string; isSelected: boolean };
+export type EmployeeCommissionRecord = EmployeeCommission & { commissionId?: string; isSelected: boolean };
 
 export interface CommissionHistory {
   id: string;
@@ -21,7 +21,7 @@ export interface CommissionHistoryDetail {
   date: string;
   units: number;
   totalCommission: number;
-  commissions: EmployeeCommissionSelection[];
+  commissions: EmployeeCommissionRecord[];
   products: Pick<Product, 'id' | 'name' | 'price'>[];
   rates: Pick<CommissionBand, 'id' | 'lowerLimit' | 'upperLimit' | 'rate' | 'desc'>[];
 }
