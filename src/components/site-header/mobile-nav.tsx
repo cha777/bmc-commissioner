@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 import { Sheet, SheetContent, SheetFooter, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui//scroll-area';
-import { RouterLink } from '../router-link';
+import { RouterLink } from '@/components/router-link';
 import { navConfig } from '@/config/nav-config';
 
 export const MobileNav = () => {

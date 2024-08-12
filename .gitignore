@@ -27,3 +27,4 @@ build
 # pocketbase files
 pb/*
 !pb/Dockerfile
+!pb/pb_migrations

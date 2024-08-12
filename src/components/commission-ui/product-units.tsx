@@ -1,12 +1,17 @@
 import type { FC, ChangeEvent, FocusEvent } from 'react';
 import { useCallback } from 'react';
 import numeral from 'numeral';
+
 import { Input } from '@/components/ui/input';
-import { useCommission } from '@/hooks/use-commission';
 
-export const ProductUnits: FC = () => {
-  const { avgUnitPrice, totalCommission, onTotalQtyUpdate } = useCommission();
+interface ProductUnitsProps {
+  units?: number;
+  avgUnitPrice: number;
+  totalCommission: number;
+  onTotalQtyUpdate: (qty: number) => void;
+}
 
+export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, totalCommission, onTotalQtyUpdate }) => {
   const handleQtyChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const qty = parseFloat(e.target.value) || 0;
@@ -38,7 +43,7 @@ export const ProductUnits: FC = () => {
         <Input
           className='text-right w-20'
           type='number'
-          defaultValue={0}
+          defaultValue={units}
           onChange={handleQtyChange}
           onBlur={handleFocusOut}
         />

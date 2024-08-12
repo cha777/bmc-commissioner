@@ -1,19 +1,24 @@
 import type { FC } from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { useCommission } from '@/hooks/use-commission';
 
-export const DatePicker: FC = () => {
-  const { date, onDateUpdate } = useCommission();
+interface DatePickerProps {
+  date: Date;
+  onDateUpdate?: (date: Date) => void;
+  disabled?: boolean;
+}
 
+export const DatePicker: FC<DatePickerProps> = ({ date, onDateUpdate, disabled = false }) => {
   return (
     <div className='flex items-center justify-center'>
       <Popover>
         <PopoverTrigger asChild>
           <Button
+            disabled={disabled}
             variant={'outline'}
             className='w-[240px] justify-center text-left font-normal'
           >
@@ -29,7 +34,7 @@ export const DatePicker: FC = () => {
             mode='single'
             selected={new Date(date)}
             required
-            onSelect={(date) => onDateUpdate(date as Date)}
+            onSelect={(date) => onDateUpdate?.(date as Date)}
             initialFocus
             disabled={{ after: new Date() }}
           />

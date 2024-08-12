@@ -1,7 +1,8 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useReducer } from 'react';
+
 import { auth } from '@/api';
-import { User } from '@/types/user';
+import type { User } from '@/types/user';
 
 interface State {
   isInitialized: boolean;

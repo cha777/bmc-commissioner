@@ -3,12 +3,13 @@ import { useCallback, useState } from 'react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { CalendarIcon } from 'lucide-react';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { useCommissionHistory } from '@/hooks/use-commission-history';
 
-export const DatePicker: FC = () => {
+export const DateRangePicker: FC = () => {
   const { from, to, onDateRangeUpdate } = useCommissionHistory();
   const [calendarFrom, setCalendarFrom] = useState(from);
   const [calendarTo, setCalendarTo] = useState(to);
