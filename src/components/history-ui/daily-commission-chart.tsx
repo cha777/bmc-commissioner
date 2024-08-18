@@ -1,6 +1,8 @@
+import type { FC } from 'react';
+import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useCommissionHistory } from '@/hooks/use-commission-history';
 
@@ -14,13 +16,22 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export const DailyCommissionChart = () => {
+export const DailyCommissionChart: FC = () => {
   const { commissionHistory } = useCommissionHistory();
+
+  const totalUnits = useMemo(() => {
+    return Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(
+      commissionHistory.reduce((prev, curr) => {
+        return prev + curr.units;
+      }, 0)
+    );
+  }, [commissionHistory]);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Metal Units Produced</CardTitle>
+        <CardDescription>Total Units: {totalUnits}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer

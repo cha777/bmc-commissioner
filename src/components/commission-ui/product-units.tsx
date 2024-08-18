@@ -1,6 +1,5 @@
 import type { FC, ChangeEvent, FocusEvent } from 'react';
 import { useCallback } from 'react';
-import numeral from 'numeral';
 
 import { Input } from '@/components/ui/input';
 
@@ -40,7 +39,9 @@ export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, t
     <ul className='grid gap-3'>
       <li className='flex items-center justify-between'>
         <span className='text-muted-foreground flex-1'>Average unit price</span>
-        <span>{numeral(avgUnitPrice).format('0,0.00')}</span>
+        <span>
+          {Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(avgUnitPrice)}
+        </span>
       </li>
       <li className='flex items-center justify-between'>
         <span className='text-muted-foreground'>Total units produced</span>
@@ -55,7 +56,9 @@ export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, t
       </li>
       <li className='flex items-center justify-between'>
         <span className='text-muted-foreground flex-1'>Total Commission</span>
-        <span>{numeral(totalCommission).format('0,0.00')}</span>
+        <span>
+          {Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(totalCommission)}
+        </span>
       </li>
     </ul>
   );

@@ -8,6 +8,7 @@ logs
 
 # Build output (avoid copying generated files)
 dist
+dev-dist
 build
 
 # Configuration files and directories

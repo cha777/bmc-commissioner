@@ -9,6 +9,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+      },
       manifest: {
         name: 'BMC Commissioner',
         short_name: 'BMC Commissioner',
@@ -43,6 +47,9 @@ export default defineConfig({
         theme_color: '#0c0a09',
         dir: 'ltr',
         lang: 'en',
+      },
+      devOptions: {
+        enabled: true,
       },
     }),
   ],
