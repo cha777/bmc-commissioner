@@ -1,14 +1,23 @@
 import type { FC } from 'react';
+import { useMemo } from 'react';
 import numeral from 'numeral';
 
 import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '../ui/separator';
 import type { EmployeeCommission } from '@/types/commission';
 
 interface CommissionBreakdownProps {
   employeeList: EmployeeCommission[];
+  shouldShowTotal?: boolean;
 }
 
-export const CommissionBreakdown: FC<CommissionBreakdownProps> = ({ employeeList }) => {
+export const CommissionBreakdown: FC<CommissionBreakdownProps> = ({ employeeList, shouldShowTotal = false }) => {
+  const totalCommission = useMemo(() => {
+    return employeeList.reduce((prev, curr) => {
+      return curr.commission + prev;
+    }, 0);
+  }, [employeeList]);
+
   return (
     <Card>
       <CardContent className='p-6 text-sm'>
@@ -40,6 +49,15 @@ export const CommissionBreakdown: FC<CommissionBreakdownProps> = ({ employeeList
               </li>
             ))}
           </ul>
+          {shouldShowTotal && (
+            <>
+              <Separator />
+              <li className='flex items-center justify-between'>
+                <span className='text-muted-foreground flex-1'>Total Commission</span>
+                <span>{numeral(totalCommission).format('0,0.00')}</span>
+              </li>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

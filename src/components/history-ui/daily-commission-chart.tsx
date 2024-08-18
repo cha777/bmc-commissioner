@@ -10,7 +10,7 @@ const chartConfig = {
   },
   units: {
     label: 'Units',
-    color: 'hsl(var(--chart-5))',
+    color: 'hsl(var(--primary))',
   },
 } satisfies ChartConfig;
 

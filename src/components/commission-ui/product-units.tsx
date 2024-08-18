@@ -20,6 +20,10 @@ export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, t
     [onTotalQtyUpdate]
   );
 
+  const handleFocusIn = useCallback((e: FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+  }, []);
+
   const handleFocusOut = useCallback(
     (e: FocusEvent<HTMLInputElement>) => {
       const qty = parseFloat(e.target.value);
@@ -45,6 +49,7 @@ export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, t
           type='number'
           defaultValue={units}
           onChange={handleQtyChange}
+          onFocus={handleFocusIn}
           onBlur={handleFocusOut}
         />
       </li>
