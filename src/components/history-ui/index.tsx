@@ -14,7 +14,10 @@ export const HistoryUI: FC = () => {
     <div className='relative grid auto-rows-max items-start py-2 gap-4 lg:col-span-2 lg:gap-8'>
       <DateRangePicker />
 
-      <CommissionBreakdown employeeList={employeeCommissions} />
+      <CommissionBreakdown
+        employeeList={employeeCommissions}
+        shouldShowTotal
+      />
 
       <DailyCommissionChart />
       <DailyCommissionData />
