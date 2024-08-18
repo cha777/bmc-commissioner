@@ -1,6 +1,5 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
-import numeral from 'numeral';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '../ui/separator';
@@ -45,7 +44,11 @@ export const CommissionBreakdown: FC<CommissionBreakdownProps> = ({ employeeList
                     })()}
                   </span>
                 }
-                <span>{numeral(employee.commission).format('0,0.00')}</span>
+                <span>
+                  {Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+                    employee.commission
+                  )}
+                </span>
               </li>
             ))}
           </ul>
@@ -54,7 +57,11 @@ export const CommissionBreakdown: FC<CommissionBreakdownProps> = ({ employeeList
               <Separator />
               <li className='flex items-center justify-between'>
                 <span className='text-muted-foreground flex-1'>Total Commission</span>
-                <span>{numeral(totalCommission).format('0,0.00')}</span>
+                <span>
+                  {Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+                    totalCommission
+                  )}
+                </span>
               </li>
             </>
           )}

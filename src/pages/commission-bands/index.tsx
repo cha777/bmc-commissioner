@@ -54,7 +54,7 @@ const Page: FC = () => {
           const rate = parseFloat(row.getValue('rate'));
           const formatted = new Intl.NumberFormat('en-US', {
             style: 'percent',
-            maximumFractionDigits: 1,
+            maximumFractionDigits: 2,
           }).format(rate);
 
           return formatted;

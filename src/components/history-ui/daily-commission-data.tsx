@@ -69,6 +69,7 @@ export const DailyCommissionData: FC = () => {
         cell: ({ row }) => {
           const commission = parseFloat(row.getValue('totalCommission'));
           const formatted = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           }).format(commission);
 
