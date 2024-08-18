@@ -134,6 +134,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
 
       setState((prev) => ({
         ...prev,
+        date: new Date(query.data.date).getTime(),
         avgUnitPrice,
         totalUnitsProduced: query.data.units,
         totalCommission: query.data.totalCommission,
