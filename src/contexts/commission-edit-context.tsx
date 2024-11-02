@@ -17,6 +17,7 @@ interface State {
   totalUnitsProduced: number;
   totalCommission: number;
   employeeList: EmployeeCommissionRecord[];
+  isNegativeCommissionsAllowed: boolean;
 }
 
 const initialValues: State = {
@@ -27,11 +28,13 @@ const initialValues: State = {
   totalUnitsProduced: 0,
   totalCommission: 0,
   employeeList: [],
+  isNegativeCommissionsAllowed: true,
 };
 
 export interface CommissionEditContextType extends State {
   onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
+  onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
   submitData: () => void;
 }
 
@@ -39,6 +42,7 @@ export const CommissionEditContext = createContext<CommissionEditContextType>({
   ...initialValues,
   onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
+  onNegativeCommissionAllowUpdate: () => {},
   submitData: () => {},
 });
 
@@ -92,6 +96,15 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onNegativeCommissionAllowUpdate = useCallback((isAllowed: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      isNegativeCommissionsAllowed: isAllowed,
+    }));
+
+    setTriggerCalculationEffect(true);
+  }, []);
+
   const submitData = useCallback(async () => {
     try {
       setState((prev) => ({
@@ -103,6 +116,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         id,
         units: state.totalUnitsProduced,
         employeeList: state.employeeList,
+        isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
       });
 
       setState((prev) => ({
@@ -120,7 +134,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
       queryClient.invalidateQueries({ queryKey: [queryKey.history] });
       router.back();
     }
-  }, [id, state.totalUnitsProduced, state.employeeList, queryClient, router]);
+  }, [id, state.totalUnitsProduced, state.employeeList, state.isNegativeCommissionsAllowed, queryClient, router]);
 
   /**
    * This method will request metadata and update the context state
@@ -139,6 +153,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         totalUnitsProduced: query.data.units,
         totalCommission: query.data.totalCommission,
         employeeList: query.data.commissions,
+        isNegativeCommissionsAllowed: query.data.isNegativeCommissionsAllowed,
         isInitialized: true,
       }));
     }
@@ -152,7 +167,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
       let totalCommission = 0;
 
       if (unitsProduced > 0) {
-        if (unitsProduced <= negativeCommissionBands[0].upperLimit) {
+        if (unitsProduced <= negativeCommissionBands[0].upperLimit && state.isNegativeCommissionsAllowed) {
           for (const band of negativeCommissionBands) {
             if (unitsProduced <= band.upperLimit) {
               const unitsInBand = band.upperLimit - Math.max(unitsProduced, band.lowerLimit);
@@ -169,16 +184,22 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         }
       }
 
-      setState((prev) => ({
-        ...prev,
-        totalCommission: (employeeCount * Math.round((100 * totalCommission) / employeeCount)) / 100,
-        employeeList: prev.employeeList.map((employee) => ({
+      setState((prev) => {
+        const employeeCommissions = prev.employeeList.map((employee) => ({
           ...employee,
           commission: employee.isSelected
             ? Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100
             : 0,
-        })),
-      }));
+        }));
+
+        const actualTotalCommission = employeeCommissions.reduce((prev, curr) => prev + curr.commission, 0);
+
+        return {
+          ...prev,
+          totalCommission: (employeeCount * Math.round((100 * actualTotalCommission) / employeeCount)) / 100,
+          employeeList: employeeCommissions,
+        };
+      });
     };
 
     if (triggerCalculationEffect) {
@@ -194,6 +215,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         ...state,
         onTotalQtyUpdate,
         onEmployeeSelectionUpdate,
+        onNegativeCommissionAllowUpdate,
         submitData,
       }}
     >

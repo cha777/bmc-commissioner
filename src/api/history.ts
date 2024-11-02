@@ -33,6 +33,7 @@ const getCommissionRecordById = async (id: CommissionHistory['id']): Promise<Com
     'employees',
     'products',
     'rates',
+    'is_negative_allowed',
     'expand.commissions_via_sale_id.id',
     'expand.commissions_via_sale_id.commission',
     'expand.commissions_via_sale_id.employee_id',
