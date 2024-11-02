@@ -49,6 +49,7 @@ export class CommissionHistoryDetailTransformer {
       commissions: Array.from(employeeCommissionMap.values()),
       products,
       rates,
+      isNegativeCommissionsAllowed: record.isNegativeCommissionsAllowed,
     };
   }
 }

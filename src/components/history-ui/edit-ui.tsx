@@ -7,6 +7,7 @@ import { ActivityOverlay } from '@/components/activity-overlay';
 import { DatePicker } from '@/components//commission-ui/date-picker';
 import { CommissionBreakdown } from '@/components/commission-ui/commission-breakdown';
 import { EmployeeSelection } from '@/components/commission-ui/employee-selection';
+import { NegativeCommissionToggle } from '@/components/commission-ui/negative-commission-toggle';
 import { ProductUnits } from '@/components/commission-ui/product-units';
 import { useCommissionEdit } from '@/hooks/use-commission-history-edit';
 
@@ -17,9 +18,11 @@ export const CommissionEditUi: FC = () => {
     employeeList,
     totalCommission,
     totalUnitsProduced,
+    isNegativeCommissionsAllowed,
     isSubmitting,
     onEmployeeSelectionUpdate,
     onTotalQtyUpdate,
+    onNegativeCommissionAllowUpdate,
     submitData,
   } = useCommissionEdit();
 
@@ -43,6 +46,11 @@ export const CommissionEditUi: FC = () => {
             <EmployeeSelection
               employeeList={employeeList}
               onEmployeeSelectionUpdate={onEmployeeSelectionUpdate}
+            />
+            <Separator />
+            <NegativeCommissionToggle
+              isChecked={isNegativeCommissionsAllowed}
+              onCheckedChange={onNegativeCommissionAllowUpdate}
             />
           </div>
         </CardContent>

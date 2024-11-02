@@ -9,6 +9,7 @@ import { DatePicker } from './date-picker';
 import { CommissionBreakdown } from './commission-breakdown';
 import { ProductUnits } from './product-units';
 import { EmployeeSelection } from './employee-selection';
+import { NegativeCommissionToggle } from './negative-commission-toggle';
 
 export const CommissionUI: FC = () => {
   const {
@@ -17,9 +18,11 @@ export const CommissionUI: FC = () => {
     employeeList,
     totalCommission,
     totalUnitsProduced,
+    isNegativeCommissionsAllowed,
     isSubmitting,
     onDateUpdate,
     onEmployeeSelectionUpdate,
+    onNegativeCommissionAllowUpdate,
     onTotalQtyUpdate,
     submitData,
   } = useCommission();
@@ -43,6 +46,11 @@ export const CommissionUI: FC = () => {
             <EmployeeSelection
               employeeList={employeeList}
               onEmployeeSelectionUpdate={onEmployeeSelectionUpdate}
+            />
+            <Separator />
+            <NegativeCommissionToggle
+              isChecked={isNegativeCommissionsAllowed}
+              onCheckedChange={onNegativeCommissionAllowUpdate}
             />
           </div>
         </CardContent>

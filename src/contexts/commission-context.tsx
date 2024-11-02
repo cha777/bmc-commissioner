@@ -15,6 +15,7 @@ interface State {
   date: number;
   avgUnitPrice: number;
   totalUnitsProduced: number;
+  isNegativeCommissionsAllowed: boolean;
   totalCommission: number;
   employeeList: (EmployeeCommission & { isSelected: boolean })[];
 }
@@ -25,6 +26,7 @@ const initialValues: State = {
   date: 0,
   avgUnitPrice: 0,
   totalUnitsProduced: 0,
+  isNegativeCommissionsAllowed: true,
   totalCommission: 0,
   employeeList: [],
 };
@@ -33,6 +35,7 @@ export interface CommissionContextType extends State {
   onDateUpdate: (date: Date) => void;
   onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
+  onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
   submitData: () => void;
 }
 export const CommissionContext = createContext<CommissionContextType>({
@@ -40,6 +43,7 @@ export const CommissionContext = createContext<CommissionContextType>({
   onDateUpdate: () => {},
   onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
+  onNegativeCommissionAllowUpdate: () => {},
   submitData: () => {},
 });
 
@@ -100,6 +104,15 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onNegativeCommissionAllowUpdate = useCallback((isAllowed: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      isNegativeCommissionsAllowed: isAllowed,
+    }));
+
+    setTriggerCalculationEffect(true);
+  }, []);
+
   const submitData = useCallback(async () => {
     try {
       setState((prev) => ({
@@ -113,6 +126,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         employeeList: state.employeeList,
         rates: commissionBands,
         units: state.totalUnitsProduced,
+        isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
       });
 
       setState((prev) => ({
@@ -127,7 +141,14 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         isSubmitting: false,
       }));
     }
-  }, [state.date, state.employeeList, state.totalUnitsProduced, productList, commissionBands]);
+  }, [
+    state.date,
+    state.employeeList,
+    state.totalUnitsProduced,
+    state.isNegativeCommissionsAllowed,
+    productList,
+    commissionBands,
+  ]);
 
   /**
    * This method will request metadata and update the context state
@@ -167,7 +188,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
       let totalCommission = 0;
 
       if (unitsProduced > 0) {
-        if (unitsProduced <= negativeCommissionBands[0].upperLimit) {
+        if (unitsProduced <= negativeCommissionBands[0].upperLimit && state.isNegativeCommissionsAllowed) {
           for (const band of negativeCommissionBands) {
             if (unitsProduced <= band.upperLimit) {
               const unitsInBand = band.upperLimit - Math.max(unitsProduced, band.lowerLimit);
@@ -210,6 +231,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         onDateUpdate,
         onTotalQtyUpdate,
         onEmployeeSelectionUpdate,
+        onNegativeCommissionAllowUpdate,
         submitData,
       }}
     >

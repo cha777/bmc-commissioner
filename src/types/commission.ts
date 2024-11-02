@@ -21,6 +21,7 @@ export interface CommissionHistoryDetail {
   date: string;
   units: number;
   totalCommission: number;
+  isNegativeCommissionsAllowed: boolean;
   commissions: EmployeeCommissionRecord[];
   products: Pick<Product, 'id' | 'name' | 'price'>[];
   rates: Pick<CommissionBand, 'id' | 'lowerLimit' | 'upperLimit' | 'rate' | 'desc'>[];
