@@ -184,16 +184,22 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         }
       }
 
-      setState((prev) => ({
-        ...prev,
-        totalCommission: (employeeCount * Math.round((100 * totalCommission) / employeeCount)) / 100,
-        employeeList: prev.employeeList.map((employee) => ({
+      setState((prev) => {
+        const employeeCommissions = prev.employeeList.map((employee) => ({
           ...employee,
           commission: employee.isSelected
             ? Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100
             : 0,
-        })),
-      }));
+        }));
+
+        const actualTotalCommission = employeeCommissions.reduce((prev, curr) => prev + curr.commission, 0);
+
+        return {
+          ...prev,
+          totalCommission: (employeeCount * Math.round((100 * actualTotalCommission) / employeeCount)) / 100,
+          employeeList: employeeCommissions,
+        };
+      });
     };
 
     if (triggerCalculationEffect) {
