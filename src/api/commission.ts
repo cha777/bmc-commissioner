@@ -94,7 +94,7 @@ const _createSaleRecord = async (data: SubmitCommissionData) => {
       weight: record.weight,
       isSelected: record.isSelected,
     })),
-    isNegativeCommissionsAllowed: data.isNegativeCommissionsAllowed,
+    is_negative_allowed: data.isNegativeCommissionsAllowed,
   });
 
   return record.id;
@@ -126,7 +126,7 @@ const _updateSaleRecord = async (data: EditCommissionData) => {
       name: employee.name,
       isSelected: employee.isSelected,
     })),
-    isNegativeCommissionsAllowed: data.isNegativeCommissionsAllowed,
+    is_negative_allowed: data.isNegativeCommissionsAllowed,
   });
 };
 
