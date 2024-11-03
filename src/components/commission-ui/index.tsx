@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { FC } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ export const CommissionUI: FC = () => {
   const {
     avgUnitPrice,
     date,
+    disabledDates,
     employeeList,
     totalCommission,
     totalUnitsProduced,
@@ -27,10 +29,19 @@ export const CommissionUI: FC = () => {
     submitData,
   } = useCommission();
 
+  const disabledCalendarDates = useMemo(() => disabledDates.map((_date) => new Date(_date)), [disabledDates]);
+
+  const isSaleAlreadySubmitted = useMemo(() => {
+    const currentDateString = new Date(date).toDateString();
+
+    return disabledCalendarDates.some((date) => date.toDateString() === currentDateString);
+  }, [date, disabledCalendarDates]);
+
   return (
     <div className='relative grid auto-rows-max items-start py-2 gap-4 lg:col-span-2 lg:gap-8'>
       <DatePicker
         date={new Date(date)}
+        disabledDates={disabledCalendarDates}
         onDateUpdate={onDateUpdate}
       />
 
@@ -62,7 +73,11 @@ export const CommissionUI: FC = () => {
         <Button
           size='sm'
           variant='default'
-          disabled={employeeList.filter((employee) => employee.isSelected).length === 0 || totalUnitsProduced === 0}
+          disabled={
+            employeeList.filter((employee) => employee.isSelected).length === 0 ||
+            totalUnitsProduced === 0 ||
+            isSaleAlreadySubmitted
+          }
           onClick={submitData}
         >
           Submit

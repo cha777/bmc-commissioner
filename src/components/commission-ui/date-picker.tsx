@@ -10,9 +10,10 @@ interface DatePickerProps {
   date: Date;
   onDateUpdate?: (date: Date) => void;
   disabled?: boolean;
+  disabledDates?: Date[];
 }
 
-export const DatePicker: FC<DatePickerProps> = ({ date, onDateUpdate, disabled = false }) => {
+export const DatePicker: FC<DatePickerProps> = ({ date, onDateUpdate, disabled = false, disabledDates = [] }) => {
   return (
     <div className='flex items-center justify-center'>
       <Popover>
@@ -36,7 +37,7 @@ export const DatePicker: FC<DatePickerProps> = ({ date, onDateUpdate, disabled =
             required
             onSelect={(date) => onDateUpdate?.(date as Date)}
             initialFocus
-            disabled={{ after: new Date() }}
+            disabled={[{ after: new Date() }, ...disabledDates]}
           />
         </PopoverContent>
       </Popover>

@@ -24,6 +24,10 @@ export const DeleteCommissionForm: FC<FormProps> = (props) => {
         queryClient.setQueryData([queryKey.history], (oldData: CommissionHistory[]) =>
           oldData.filter((_record) => _record.id !== deletedId)
         );
+
+        queryClient.setQueryData([queryKey.dates], (oldData: string[]) =>
+          oldData.filter((_date) => _date !== item.date)
+        );
       }
 
       onComplete();

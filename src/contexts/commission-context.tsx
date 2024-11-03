@@ -1,8 +1,8 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { commission, metadata } from '@/api';
+import { commission, history, metadata } from '@/api';
 import { queryKey } from '@/utils';
 import type { Product } from '@/types/product';
 import type { Employee } from '@/types/employee';
@@ -18,6 +18,7 @@ interface State {
   isNegativeCommissionsAllowed: boolean;
   totalCommission: number;
   employeeList: (EmployeeCommission & { isSelected: boolean })[];
+  disabledDates: string[];
 }
 
 const initialValues: State = {
@@ -29,6 +30,7 @@ const initialValues: State = {
   isNegativeCommissionsAllowed: true,
   totalCommission: 0,
   employeeList: [],
+  disabledDates: [],
 };
 
 export interface CommissionContextType extends State {
@@ -58,6 +60,8 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
   const [productList, setProductList] = useState<Product[]>([]);
   const [triggerCalculationEffect, setTriggerCalculationEffect] = useState(false);
 
+  const queryClient = useQueryClient();
+
   const metadataQueries = useQueries({
     queries: [
       { queryKey: [queryKey.employees], queryFn: metadata.getEmployeeList },
@@ -66,7 +70,12 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     ],
   });
 
-  const isMetadataReady = metadataQueries.every((query) => query.isSuccess);
+  const historyDatesQuery = useQuery({
+    queryKey: [queryKey.dates],
+    queryFn: () => history.getCommissionRecordDates(),
+  });
+
+  const isMetadataReady = metadataQueries.every((query) => query.isSuccess) && historyDatesQuery.isSuccess;
 
   const positiveCommissionBands = useMemo(() => {
     return commissionBands.filter((band) => band.rate > 0);
@@ -131,8 +140,11 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
 
       setState((prev) => ({
         ...prev,
+        disabledDates: [...state.disabledDates, new Date(state.date).toISOString()],
         isSubmitting: false,
       }));
+
+      queryClient.setQueryData([queryKey.dates], state.disabledDates);
     } catch (e) {
       console.error('Error while submitting commission record', e);
 
@@ -146,8 +158,10 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     state.employeeList,
     state.totalUnitsProduced,
     state.isNegativeCommissionsAllowed,
+    state.disabledDates,
     productList,
     commissionBands,
+    queryClient,
   ]);
 
   /**
@@ -171,6 +185,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
               isSelected: employee.isPermanent,
               commission: 0,
             })) ?? [],
+        disabledDates: historyDatesQuery.isSuccess ? historyDatesQuery.data : [],
         isInitialized: true,
       }));
 

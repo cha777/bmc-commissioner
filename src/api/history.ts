@@ -3,6 +3,17 @@ import { CommissionHistoryTransformer } from './transformers/commission-history-
 import { CommissionHistoryDetailTransformer } from './transformers/commission-history-detail-transformer';
 import type { CommissionHistory, CommissionHistoryDetail } from '@/types/commission';
 
+const getCommissionRecordDates = async (): Promise<string[]> => {
+  const results = (
+    await pb.collection('sales').getFullList({
+      sort: '+date',
+      fields: 'date',
+    })
+  ).map((_record) => _record.date);
+
+  return results;
+};
+
 const getCommissionHistory = async (period: { from: Date; to: Date }): Promise<CommissionHistory[]> => {
   const fields = [
     'id',
@@ -55,6 +66,7 @@ const _formatDateToISO = (date: Date) => {
 };
 
 export default {
+  getCommissionRecordDates,
   getCommissionHistory,
   getCommissionRecordById,
 };

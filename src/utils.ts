@@ -3,4 +3,5 @@ export const queryKey = {
   products: 'products',
   commissionBands: 'commission-bands',
   history: 'history',
+  dates: 'dates',
 };
