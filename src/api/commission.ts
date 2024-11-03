@@ -124,6 +124,7 @@ const _updateSaleRecord = async (data: EditCommissionData) => {
     employees: data.employeeList.map((employee) => ({
       id: employee.id,
       name: employee.name,
+      weight: employee.weight,
       isSelected: employee.isSelected,
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
