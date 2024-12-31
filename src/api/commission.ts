@@ -10,6 +10,7 @@ interface SubmitCommissionData {
   rates: CommissionBand[];
   units: number;
   isNegativeCommissionsAllowed: boolean;
+  additionalPayment: number;
 }
 
 interface EditCommissionData {
@@ -17,6 +18,7 @@ interface EditCommissionData {
   employeeList: EmployeeCommissionRecord[];
   units: number;
   isNegativeCommissionsAllowed: boolean;
+  additionalPayment: number;
 }
 
 const submitCommissionTransaction = async (data: SubmitCommissionData) => {
@@ -95,6 +97,7 @@ const _createSaleRecord = async (data: SubmitCommissionData) => {
       isSelected: record.isSelected,
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
+    additional_payment: data.additionalPayment,
   });
 
   return record.id;
@@ -128,6 +131,7 @@ const _updateSaleRecord = async (data: EditCommissionData) => {
       isSelected: employee.isSelected,
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
+    additional_payment: data.additionalPayment,
   });
 };
 

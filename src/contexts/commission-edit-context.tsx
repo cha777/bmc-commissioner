@@ -18,6 +18,7 @@ interface State {
   totalCommission: number;
   employeeList: EmployeeCommissionRecord[];
   isNegativeCommissionsAllowed: boolean;
+  additionalPayment: number;
 }
 
 const initialValues: State = {
@@ -29,12 +30,14 @@ const initialValues: State = {
   totalCommission: 0,
   employeeList: [],
   isNegativeCommissionsAllowed: true,
+  additionalPayment: 0,
 };
 
 export interface CommissionEditContextType extends State {
   onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
   onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
+  onAdditionalPaymentUpdate: (value: number) => void;
   submitData: () => void;
 }
 
@@ -43,6 +46,7 @@ export const CommissionEditContext = createContext<CommissionEditContextType>({
   onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
   onNegativeCommissionAllowUpdate: () => {},
+  onAdditionalPaymentUpdate: () => {},
   submitData: () => {},
 });
 
@@ -105,6 +109,15 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onAdditionalPaymentUpdate = useCallback((value: number) => {
+    setState((prev) => ({
+      ...prev,
+      additionalPayment: value,
+    }));
+
+    setTriggerCalculationEffect(true);
+  }, []);
+
   const submitData = useCallback(async () => {
     try {
       setState((prev) => ({
@@ -117,6 +130,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         units: state.totalUnitsProduced,
         employeeList: state.employeeList,
         isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
+        additionalPayment: state.additionalPayment,
       });
 
       setState((prev) => ({
@@ -154,6 +168,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         totalCommission: query.data.totalCommission,
         employeeList: query.data.commissions,
         isNegativeCommissionsAllowed: query.data.isNegativeCommissionsAllowed,
+        additionalPayment: query.data.additionalPayment,
         isInitialized: true,
       }));
     }
@@ -188,7 +203,8 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         const employeeCommissions = prev.employeeList.map((employee) => ({
           ...employee,
           commission: employee.isSelected
-            ? Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100
+            ? Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100 +
+              state.additionalPayment * employee.weight
             : 0,
         }));
 
@@ -216,6 +232,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         onTotalQtyUpdate,
         onEmployeeSelectionUpdate,
         onNegativeCommissionAllowUpdate,
+        onAdditionalPaymentUpdate,
         submitData,
       }}
     >

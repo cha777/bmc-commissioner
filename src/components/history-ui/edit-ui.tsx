@@ -9,6 +9,7 @@ import { CommissionBreakdown } from '@/components/commission-ui/commission-break
 import { EmployeeSelection } from '@/components/commission-ui/employee-selection';
 import { NegativeCommissionToggle } from '@/components/commission-ui/negative-commission-toggle';
 import { ProductUnits } from '@/components/commission-ui/product-units';
+import { AdditionalPayment } from '../commission-ui/additional-payment';
 import { useCommissionEdit } from '@/hooks/use-commission-history-edit';
 
 export const CommissionEditUi: FC = () => {
@@ -19,10 +20,12 @@ export const CommissionEditUi: FC = () => {
     totalCommission,
     totalUnitsProduced,
     isNegativeCommissionsAllowed,
+    additionalPayment,
     isSubmitting,
     onEmployeeSelectionUpdate,
     onTotalQtyUpdate,
     onNegativeCommissionAllowUpdate,
+    onAdditionalPaymentUpdate,
     submitData,
   } = useCommissionEdit();
 
@@ -51,6 +54,11 @@ export const CommissionEditUi: FC = () => {
             <NegativeCommissionToggle
               isChecked={isNegativeCommissionsAllowed}
               onCheckedChange={onNegativeCommissionAllowUpdate}
+            />
+            <Separator />
+            <AdditionalPayment
+              value={additionalPayment}
+              onChange={onAdditionalPaymentUpdate}
             />
           </div>
         </CardContent>

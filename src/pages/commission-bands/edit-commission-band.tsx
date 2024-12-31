@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useCallback, useMemo } from 'react';
+import { NumericFormat } from 'react-number-format';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
@@ -71,14 +72,18 @@ export const EditForm: FC<FormProps> = (props) => {
           <FormField
             control={form.control}
             name='lowerLimit'
-            render={({ field }) => (
+            render={({ field: { onChange, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel>Lower Limit</FormLabel>
                 <FormDescription>Keep value 0 to set the minimum range</FormDescription>
                 <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
+                  <NumericFormat
+                    {...fieldProps}
+                    onValueChange={(values) => onChange(values.floatValue || 0)}
+                    onFocus={(e) => e.target.select()}
+                    customInput={Input}
+                    allowNegative={false}
+                    decimalScale={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -88,14 +93,18 @@ export const EditForm: FC<FormProps> = (props) => {
           <FormField
             control={form.control}
             name='upperLimit'
-            render={({ field }) => (
+            render={({ field: { onChange, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel>Upper Limit</FormLabel>
                 <FormDescription>Keep value 0 to set the maximum range</FormDescription>
                 <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
+                  <NumericFormat
+                    {...fieldProps}
+                    onValueChange={(values) => onChange(values.floatValue || 0)}
+                    onFocus={(e) => e.target.select()}
+                    customInput={Input}
+                    allowNegative={false}
+                    decimalScale={0}
                   />
                 </FormControl>
                 <FormMessage />
@@ -105,13 +114,17 @@ export const EditForm: FC<FormProps> = (props) => {
           <FormField
             control={form.control}
             name='rate'
-            render={({ field }) => (
+            render={({ field: { onChange, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel>Rate</FormLabel>
                 <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
+                  <NumericFormat
+                    {...fieldProps}
+                    onValueChange={(values) => onChange(values.floatValue || 0)}
+                    onFocus={(e) => e.target.select()}
+                    customInput={Input}
+                    allowNegative={false}
+                    decimalScale={2}
                   />
                 </FormControl>
                 <FormMessage />

@@ -19,6 +19,7 @@ interface State {
   totalCommission: number;
   employeeList: (EmployeeCommission & { isSelected: boolean })[];
   disabledDates: string[];
+  additionalPayment: number;
 }
 
 const initialValues: State = {
@@ -31,6 +32,7 @@ const initialValues: State = {
   totalCommission: 0,
   employeeList: [],
   disabledDates: [],
+  additionalPayment: 0,
 };
 
 export interface CommissionContextType extends State {
@@ -38,6 +40,7 @@ export interface CommissionContextType extends State {
   onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
   onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
+  onAdditionalPaymentUpdate: (value: number) => void;
   submitData: () => void;
 }
 export const CommissionContext = createContext<CommissionContextType>({
@@ -46,6 +49,7 @@ export const CommissionContext = createContext<CommissionContextType>({
   onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
   onNegativeCommissionAllowUpdate: () => {},
+  onAdditionalPaymentUpdate: () => {},
   submitData: () => {},
 });
 
@@ -122,6 +126,15 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onAdditionalPaymentUpdate = useCallback((value: number) => {
+    setState((prev) => ({
+      ...prev,
+      additionalPayment: value,
+    }));
+
+    setTriggerCalculationEffect(true);
+  }, []);
+
   const submitData = useCallback(async () => {
     try {
       setState((prev) => ({
@@ -136,6 +149,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         rates: commissionBands,
         units: state.totalUnitsProduced,
         isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
+        additionalPayment: state.additionalPayment,
       });
 
       setState((prev) => ({
@@ -158,6 +172,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     state.employeeList,
     state.totalUnitsProduced,
     state.isNegativeCommissionsAllowed,
+    state.additionalPayment,
     state.disabledDates,
     productList,
     commissionBands,
@@ -226,7 +241,8 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         employeeList: prev.employeeList.map((employee) => ({
           ...employee,
           commission: employee.isSelected
-            ? Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100
+            ? Math.round((100 * (totalCommission * employee.weight)) / employeeCount) / 100 +
+              state.additionalPayment * employee.weight
             : 0,
         })),
       }));
@@ -247,6 +263,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         onTotalQtyUpdate,
         onEmployeeSelectionUpdate,
         onNegativeCommissionAllowUpdate,
+        onAdditionalPaymentUpdate,
         submitData,
       }}
     >

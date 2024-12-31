@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useCallback, useMemo } from 'react';
+import { NumericFormat } from 'react-number-format';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -67,13 +68,17 @@ export const EditForm: FC<FormProps> = (props) => {
           <FormField
             control={form.control}
             name='price'
-            render={({ field }) => (
+            render={({ field: { onChange, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
+                  <NumericFormat
+                    {...fieldProps}
+                    onValueChange={(values) => onChange(values.floatValue || 0)}
+                    onFocus={(e) => e.target.select()}
+                    customInput={Input}
+                    allowNegative={false}
+                    decimalScale={2}
                   />
                 </FormControl>
                 <FormMessage />

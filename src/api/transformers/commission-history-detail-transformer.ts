@@ -50,6 +50,7 @@ export class CommissionHistoryDetailTransformer {
       products,
       rates,
       isNegativeCommissionsAllowed: record.is_negative_allowed,
+      additionalPayment: record.additional_payment,
     };
   }
 }
