@@ -1,15 +1,18 @@
-import { FC } from 'react';
+import type { FC } from 'react';
+
 import { Card, CardContent } from '@/components//ui/card';
 import { Button } from '@/components//ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 import { ActivityOverlay } from '@/components/activity-overlay';
-import { DatePicker } from '@/components//commission-ui/date-picker';
+import { DatePicker } from '@/components/commission-ui/date-picker';
 import { CommissionBreakdown } from '@/components/commission-ui/commission-breakdown';
 import { EmployeeSelection } from '@/components/commission-ui/employee-selection';
 import { NegativeCommissionToggle } from '@/components/commission-ui/negative-commission-toggle';
 import { ProductUnits } from '@/components/commission-ui/product-units';
 import { AdditionalPayment } from '../commission-ui/additional-payment';
+
 import { useCommissionEdit } from '@/hooks/use-commission-history-edit';
 
 export const CommissionEditUi: FC = () => {
@@ -21,11 +24,13 @@ export const CommissionEditUi: FC = () => {
     totalUnitsProduced,
     isNegativeCommissionsAllowed,
     additionalPayment,
+    notes,
     isSubmitting,
     onEmployeeSelectionUpdate,
     onTotalQtyUpdate,
     onNegativeCommissionAllowUpdate,
     onAdditionalPaymentUpdate,
+    onNotesUpdate,
     submitData,
   } = useCommissionEdit();
 
@@ -65,6 +70,12 @@ export const CommissionEditUi: FC = () => {
       </Card>
 
       <CommissionBreakdown employeeList={employeeList} />
+
+      <Textarea
+        value={notes}
+        onChange={(e) => onNotesUpdate(e.target.value)}
+        placeholder='Type your notes here.'
+      />
 
       <div className='flex items-center justify-center'>
         <Button

@@ -19,6 +19,7 @@ interface State {
   employeeList: EmployeeCommissionRecord[];
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
+  notes: string;
 }
 
 const initialValues: State = {
@@ -31,6 +32,7 @@ const initialValues: State = {
   employeeList: [],
   isNegativeCommissionsAllowed: true,
   additionalPayment: 0,
+  notes: '',
 };
 
 export interface CommissionEditContextType extends State {
@@ -38,6 +40,7 @@ export interface CommissionEditContextType extends State {
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
   onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
   onAdditionalPaymentUpdate: (value: number) => void;
+  onNotesUpdate: (value: string) => void;
   submitData: () => void;
 }
 
@@ -47,6 +50,7 @@ export const CommissionEditContext = createContext<CommissionEditContextType>({
   onEmployeeSelectionUpdate: () => {},
   onNegativeCommissionAllowUpdate: () => {},
   onAdditionalPaymentUpdate: () => {},
+  onNotesUpdate: () => {},
   submitData: () => {},
 });
 
@@ -118,6 +122,13 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onNotesUpdate = useCallback((notes: string) => {
+    setState((prev) => ({
+      ...prev,
+      notes,
+    }));
+  }, []);
+
   const submitData = useCallback(async () => {
     try {
       setState((prev) => ({
@@ -131,6 +142,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         employeeList: state.employeeList,
         isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
         additionalPayment: state.additionalPayment,
+        notes: state.notes || '',
       });
 
       setState((prev) => ({
@@ -148,7 +160,16 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
       queryClient.invalidateQueries({ queryKey: [queryKey.history] });
       router.back();
     }
-  }, [id, state.totalUnitsProduced, state.employeeList, state.isNegativeCommissionsAllowed, queryClient, router]);
+  }, [
+    id,
+    state.totalUnitsProduced,
+    state.employeeList,
+    state.isNegativeCommissionsAllowed,
+    state.additionalPayment,
+    state.notes,
+    queryClient,
+    router,
+  ]);
 
   /**
    * This method will request metadata and update the context state
@@ -169,6 +190,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         employeeList: query.data.commissions,
         isNegativeCommissionsAllowed: query.data.isNegativeCommissionsAllowed,
         additionalPayment: query.data.additionalPayment,
+        notes: query.data.notes,
         isInitialized: true,
       }));
     }
@@ -233,6 +255,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         onEmployeeSelectionUpdate,
         onNegativeCommissionAllowUpdate,
         onAdditionalPaymentUpdate,
+        onNotesUpdate,
         submitData,
       }}
     >

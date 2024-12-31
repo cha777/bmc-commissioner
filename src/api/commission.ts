@@ -11,6 +11,7 @@ interface SubmitCommissionData {
   units: number;
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
+  notes: string;
 }
 
 interface EditCommissionData {
@@ -19,6 +20,7 @@ interface EditCommissionData {
   units: number;
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
+  notes: string;
 }
 
 const submitCommissionTransaction = async (data: SubmitCommissionData) => {
@@ -98,6 +100,7 @@ const _createSaleRecord = async (data: SubmitCommissionData) => {
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
     additional_payment: data.additionalPayment,
+    notes: data.notes,
   });
 
   return record.id;
@@ -132,6 +135,7 @@ const _updateSaleRecord = async (data: EditCommissionData) => {
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
     additional_payment: data.additionalPayment,
+    notes: data.notes,
   });
 };
 

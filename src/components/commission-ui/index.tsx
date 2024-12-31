@@ -4,8 +4,11 @@ import type { FC } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import { ActivityOverlay } from '@/components/activity-overlay';
+
 import { useCommission } from '@/hooks/use-commission';
+
 import { DatePicker } from './date-picker';
 import { CommissionBreakdown } from './commission-breakdown';
 import { ProductUnits } from './product-units';
@@ -23,12 +26,14 @@ export const CommissionUI: FC = () => {
     totalUnitsProduced,
     isNegativeCommissionsAllowed,
     additionalPayment,
+    notes,
     isSubmitting,
     onDateUpdate,
     onEmployeeSelectionUpdate,
     onNegativeCommissionAllowUpdate,
     onTotalQtyUpdate,
     onAdditionalPaymentUpdate,
+    onNotesUpdate,
     submitData,
   } = useCommission();
 
@@ -75,7 +80,16 @@ export const CommissionUI: FC = () => {
         </CardContent>
       </Card>
 
-      <CommissionBreakdown employeeList={employeeList} />
+      <CommissionBreakdown
+        employeeList={employeeList}
+        shouldShowTotal
+      />
+
+      <Textarea
+        value={notes}
+        onChange={(e) => onNotesUpdate(e.target.value)}
+        placeholder='Type your notes here.'
+      />
 
       <div className='flex items-center justify-center'>
         <Button
