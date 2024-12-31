@@ -1,5 +1,6 @@
-import type { FC, ChangeEvent, FocusEvent } from 'react';
+import type { FC, FocusEvent } from 'react';
 import { useCallback } from 'react';
+import { NumericFormat } from 'react-number-format';
 
 import { Input } from '@/components/ui/input';
 
@@ -11,29 +12,9 @@ interface ProductUnitsProps {
 }
 
 export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, totalCommission, onTotalQtyUpdate }) => {
-  const handleQtyChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const qty = parseFloat(e.target.value) || 0;
-      onTotalQtyUpdate(qty);
-    },
-    [onTotalQtyUpdate]
-  );
-
   const handleFocusIn = useCallback((e: FocusEvent<HTMLInputElement>) => {
     e.target.select();
   }, []);
-
-  const handleFocusOut = useCallback(
-    (e: FocusEvent<HTMLInputElement>) => {
-      const qty = parseFloat(e.target.value);
-
-      if (isNaN(qty) || qty < 0) {
-        onTotalQtyUpdate(0);
-        e.target.value = '0';
-      }
-    },
-    [onTotalQtyUpdate]
-  );
 
   return (
     <ul className='grid gap-3'>
@@ -45,13 +26,15 @@ export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, t
       </li>
       <li className='flex items-center justify-between'>
         <span className='text-muted-foreground'>Total units produced</span>
-        <Input
-          className='text-right w-20'
-          type='number'
-          defaultValue={units}
-          onChange={handleQtyChange}
+        <NumericFormat
+          value={units}
+          onValueChange={(values) => onTotalQtyUpdate(values.floatValue || 0)}
           onFocus={handleFocusIn}
-          onBlur={handleFocusOut}
+          customInput={Input}
+          className='text-right w-20'
+          allowNegative={false}
+          decimalScale={0}
+          defaultValue={0}
         />
       </li>
       <li className='flex items-center justify-between'>
