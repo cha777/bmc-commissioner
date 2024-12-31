@@ -20,6 +20,7 @@ interface State {
   employeeList: (EmployeeCommission & { isSelected: boolean })[];
   disabledDates: string[];
   additionalPayment: number;
+  notes: string;
 }
 
 const initialValues: State = {
@@ -33,6 +34,7 @@ const initialValues: State = {
   employeeList: [],
   disabledDates: [],
   additionalPayment: 0,
+  notes: '',
 };
 
 export interface CommissionContextType extends State {
@@ -41,6 +43,7 @@ export interface CommissionContextType extends State {
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
   onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
   onAdditionalPaymentUpdate: (value: number) => void;
+  onNotesUpdate: (value: string) => void;
   submitData: () => void;
 }
 export const CommissionContext = createContext<CommissionContextType>({
@@ -50,6 +53,7 @@ export const CommissionContext = createContext<CommissionContextType>({
   onEmployeeSelectionUpdate: () => {},
   onNegativeCommissionAllowUpdate: () => {},
   onAdditionalPaymentUpdate: () => {},
+  onNotesUpdate: () => {},
   submitData: () => {},
 });
 
@@ -135,6 +139,13 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onNotesUpdate = useCallback((notes: string) => {
+    setState((prev) => ({
+      ...prev,
+      notes,
+    }));
+  }, []);
+
   const submitData = useCallback(async () => {
     try {
       setState((prev) => ({
@@ -150,6 +161,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         units: state.totalUnitsProduced,
         isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
         additionalPayment: state.additionalPayment,
+        notes: state.notes || '',
       });
 
       setState((prev) => ({
@@ -173,6 +185,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     state.totalUnitsProduced,
     state.isNegativeCommissionsAllowed,
     state.additionalPayment,
+    state.notes,
     state.disabledDates,
     productList,
     commissionBands,
@@ -264,6 +277,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         onEmployeeSelectionUpdate,
         onNegativeCommissionAllowUpdate,
         onAdditionalPaymentUpdate,
+        onNotesUpdate,
         submitData,
       }}
     >
