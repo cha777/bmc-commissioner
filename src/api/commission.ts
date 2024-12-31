@@ -135,6 +135,7 @@ const _updateSaleRecord = async (data: EditCommissionData) => {
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
     additional_payment: data.additionalPayment,
+    notes: data.notes,
   });
 };
 

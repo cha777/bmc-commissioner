@@ -142,7 +142,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         employeeList: state.employeeList,
         isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
         additionalPayment: state.additionalPayment,
-        notes: state.notes,
+        notes: state.notes || '',
       });
 
       setState((prev) => ({
