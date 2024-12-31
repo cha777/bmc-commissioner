@@ -80,7 +80,10 @@ export const CommissionUI: FC = () => {
         </CardContent>
       </Card>
 
-      <CommissionBreakdown employeeList={employeeList} />
+      <CommissionBreakdown
+        employeeList={employeeList}
+        shouldShowTotal
+      />
 
       <Textarea
         value={notes}
