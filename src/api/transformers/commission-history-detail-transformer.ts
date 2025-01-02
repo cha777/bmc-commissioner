@@ -52,6 +52,8 @@ export class CommissionHistoryDetailTransformer {
       isNegativeCommissionsAllowed: record.is_negative_allowed,
       additionalPayment: record.additional_payment,
       notes: record.notes,
+      created: record.created,
+      updated: record.updated,
     };
   }
 }

@@ -20,6 +20,8 @@ interface State {
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
   notes: string;
+  created: string;
+  updated: string;
 }
 
 const initialValues: State = {
@@ -33,6 +35,8 @@ const initialValues: State = {
   isNegativeCommissionsAllowed: true,
   additionalPayment: 0,
   notes: '',
+  created: '',
+  updated: '',
 };
 
 export interface CommissionEditContextType extends State {
@@ -191,6 +195,8 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         isNegativeCommissionsAllowed: query.data.isNegativeCommissionsAllowed,
         additionalPayment: query.data.additionalPayment,
         notes: query.data.notes,
+        created: query.data.created,
+        updated: query.data.updated,
         isInitialized: true,
       }));
     }

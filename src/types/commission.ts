@@ -27,4 +27,6 @@ export interface CommissionHistoryDetail {
   commissions: EmployeeCommissionRecord[];
   products: Pick<Product, 'id' | 'name' | 'price'>[];
   rates: Pick<CommissionBand, 'id' | 'lowerLimit' | 'upperLimit' | 'rate' | 'desc'>[];
+  created: string;
+  updated: string;
 }

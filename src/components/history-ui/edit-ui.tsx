@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { format } from 'date-fns';
 
 import { Card, CardContent } from '@/components//ui/card';
 import { Button } from '@/components//ui/button';
@@ -25,6 +26,8 @@ export const CommissionEditUi: FC = () => {
     isNegativeCommissionsAllowed,
     additionalPayment,
     notes,
+    created,
+    updated,
     isSubmitting,
     onEmployeeSelectionUpdate,
     onTotalQtyUpdate,
@@ -41,6 +44,20 @@ export const CommissionEditUi: FC = () => {
         disabled={true}
       />
 
+      <Card>
+        <CardContent className='py-2 px-6 text-sm'>
+          <ul>
+            <li className='flex items-center justify-between'>
+              <span className='text-muted-foreground'>Created on: </span>
+              <span>{created ? format(created, 'Pp') : '--'}</span>
+            </li>
+            <li className='flex items-center justify-between'>
+              <span className='text-muted-foreground'>Updated on: </span>
+              <span>{updated ? format(updated, 'Pp') : '--'}</span>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
       <Card>
         <CardContent className='pt-6'>
           <div className='grid gap-3'>

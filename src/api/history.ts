@@ -51,6 +51,8 @@ const getCommissionRecordById = async (id: CommissionHistory['id']): Promise<Com
     'expand.commissions_via_sale_id.commission',
     'expand.commissions_via_sale_id.employee_id',
     'expand.commissions_via_sale_id.expand.employee_id.weight',
+    'created',
+    'updated',
   ];
 
   const result = CommissionHistoryDetailTransformer.transform(
