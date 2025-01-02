@@ -33,7 +33,7 @@ export const ProductUnits: FC<ProductUnitsProps> = ({ units = 0, avgUnitPrice, t
           customInput={Input}
           className='text-right w-20'
           allowNegative={false}
-          decimalScale={0}
+          decimalScale={2}
           defaultValue={0}
         />
       </li>
