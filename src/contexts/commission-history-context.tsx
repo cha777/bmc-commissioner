@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { format, parseISO } from 'date-fns';
 
 import { history } from '@/api';
 import { adjustToDateEnd, adjustToDateStart } from '@/lib/utils';
@@ -34,29 +35,23 @@ export const CommissionHistoryContext = createContext<CommissionHistoryContextTy
 
 interface CommissionHistoryProviderProps {
   children: ReactNode;
+  from: string;
+  to: string;
+  onDateChange?: (from: string, to: string) => void;
 }
 
 export const CommissionHistoryProvider: FC<CommissionHistoryProviderProps> = (props) => {
-  const { children } = props;
+  const { children, from, to, onDateChange } = props;
 
   const initialPeriod = useMemo(() => {
-    const currentDate = new Date();
-    const from = new Date();
-    const to = new Date();
+    const fromDate = parseISO(from);
+    const toDate = parseISO(to);
 
-    if (currentDate.getDate() < 15) {
-      from.setMonth(currentDate.getMonth() - 1, 1);
-      to.setMonth(currentDate.getMonth(), 0);
-    } else {
-      from.setMonth(currentDate.getMonth(), 1);
-      to.setMonth(currentDate.getMonth() + 1, 0);
-    }
+    adjustToDateStart(fromDate);
+    adjustToDateEnd(toDate);
 
-    adjustToDateStart(from);
-    adjustToDateEnd(to);
-
-    return { from, to };
-  }, []);
+    return { from: fromDate, to: toDate };
+  }, [from, to]);
 
   const [state, setState] = useState<State>({ ...initialValues, ...initialPeriod });
 
@@ -93,9 +88,14 @@ export const CommissionHistoryProvider: FC<CommissionHistoryProviderProps> = (pr
         to,
       }));
 
+      const fromDate = format(from, 'yyyy-MM-dd');
+      const toDate = format(to, 'yyyy-MM-dd');
+
+      onDateChange?.(fromDate, toDate);
+
       mutation.mutate({ from, to });
     },
-    [mutation]
+    [mutation, onDateChange]
   );
 
   useEffect(() => {
