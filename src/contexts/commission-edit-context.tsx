@@ -17,6 +17,7 @@ interface State {
   totalUnitsProduced: number;
   totalCommission: number;
   employeeList: EmployeeCommissionRecord[];
+  idleEmployeeCount: number;
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
   notes: string;
@@ -32,6 +33,7 @@ const initialValues: State = {
   totalUnitsProduced: 0,
   totalCommission: 0,
   employeeList: [],
+  idleEmployeeCount: 0,
   isNegativeCommissionsAllowed: true,
   additionalPayment: 0,
   notes: '',
@@ -42,6 +44,7 @@ const initialValues: State = {
 export interface CommissionEditContextType extends State {
   onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
+  onIdleEmployeeCountUpdate: (value: number) => void;
   onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
   onAdditionalPaymentUpdate: (value: number) => void;
   onNotesUpdate: (value: string) => void;
@@ -52,6 +55,7 @@ export const CommissionEditContext = createContext<CommissionEditContextType>({
   ...initialValues,
   onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
+  onIdleEmployeeCountUpdate: () => {},
   onNegativeCommissionAllowUpdate: () => {},
   onAdditionalPaymentUpdate: () => {},
   onNotesUpdate: () => {},
@@ -108,6 +112,15 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onIdleEmployeeCountUpdate = useCallback((value: number) => {
+    setState((prev) => ({
+      ...prev,
+      idleEmployeeCount: value,
+    }));
+
+    setTriggerCalculationEffect(true);
+  }, []);
+
   const onNegativeCommissionAllowUpdate = useCallback((isAllowed: boolean) => {
     setState((prev) => ({
       ...prev,
@@ -146,6 +159,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         employeeList: state.employeeList,
         isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
         additionalPayment: state.additionalPayment,
+        idleEmployeeCount: state.idleEmployeeCount,
         notes: state.notes || '',
       });
 
@@ -170,6 +184,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
     state.employeeList,
     state.isNegativeCommissionsAllowed,
     state.additionalPayment,
+    state.idleEmployeeCount,
     state.notes,
     queryClient,
     router,
@@ -192,6 +207,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         totalUnitsProduced: query.data.units,
         totalCommission: query.data.totalCommission,
         employeeList: query.data.commissions,
+        idleEmployeeCount: query.data.idleEmployeeCount,
         isNegativeCommissionsAllowed: query.data.isNegativeCommissionsAllowed,
         additionalPayment: query.data.additionalPayment,
         notes: query.data.notes,
@@ -206,7 +222,8 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
     const calculateEmployeeCommission = () => {
       const unitsProduced = state.totalUnitsProduced;
       const average = state.avgUnitPrice;
-      const employeeCount = state.employeeList.filter((employee) => employee.isSelected).length;
+      const employeeCount =
+        state.employeeList.filter((employee) => employee.isSelected).length + state.idleEmployeeCount;
       let totalCommission = 0;
 
       if (unitsProduced > 0) {
@@ -261,6 +278,7 @@ export const CommissionEditProvider: FC<CommissionEditProviderProps> = (props) =
         onEmployeeSelectionUpdate,
         onNegativeCommissionAllowUpdate,
         onAdditionalPaymentUpdate,
+        onIdleEmployeeCountUpdate,
         onNotesUpdate,
         submitData,
       }}

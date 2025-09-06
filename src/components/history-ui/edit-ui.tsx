@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { FC } from 'react';
 import { format } from 'date-fns';
 
@@ -21,6 +22,7 @@ export const CommissionEditUi: FC = () => {
     avgUnitPrice,
     date,
     employeeList,
+    idleEmployeeCount,
     totalCommission,
     totalUnitsProduced,
     isNegativeCommissionsAllowed,
@@ -30,12 +32,17 @@ export const CommissionEditUi: FC = () => {
     updated,
     isSubmitting,
     onEmployeeSelectionUpdate,
+    onIdleEmployeeCountUpdate,
     onTotalQtyUpdate,
     onNegativeCommissionAllowUpdate,
     onAdditionalPaymentUpdate,
     onNotesUpdate,
     submitData,
   } = useCommissionEdit();
+
+  const selectedEmployeeCount = useMemo(() => {
+    return employeeList.filter((employee) => employee.isSelected).length;
+  }, [employeeList]);
 
   return (
     <div className='relative grid auto-rows-max items-start py-2 gap-4 lg:col-span-2 lg:gap-8'>
@@ -70,7 +77,9 @@ export const CommissionEditUi: FC = () => {
             <Separator />
             <EmployeeSelection
               employeeList={employeeList}
+              idleEmployeeCount={idleEmployeeCount}
               onEmployeeSelectionUpdate={onEmployeeSelectionUpdate}
+              onIdleEmployeeCountUpdate={onIdleEmployeeCountUpdate}
             />
             <Separator />
             <NegativeCommissionToggle
@@ -98,7 +107,12 @@ export const CommissionEditUi: FC = () => {
         <Button
           size='sm'
           variant='default'
-          disabled={employeeList.filter((employee) => employee.isSelected).length === 0 || totalUnitsProduced === 0}
+          disabled={
+            selectedEmployeeCount === 0 ||
+            totalUnitsProduced === 0 ||
+            idleEmployeeCount > employeeList.length - selectedEmployeeCount ||
+            isSubmitting
+          }
           onClick={submitData}
         >
           Update
