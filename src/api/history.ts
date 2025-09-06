@@ -46,6 +46,7 @@ const getCommissionRecordById = async (id: CommissionHistory['id']): Promise<Com
     'rates',
     'is_negative_allowed',
     'additional_payment',
+    'idle_employee_count',
     'notes',
     'expand.commissions_via_sale_id.id',
     'expand.commissions_via_sale_id.commission',

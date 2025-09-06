@@ -23,6 +23,7 @@ export interface CommissionHistoryDetail {
   totalCommission: number;
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
+  idleEmployeeCount: number;
   notes: string;
   commissions: EmployeeCommissionRecord[];
   products: Pick<Product, 'id' | 'name' | 'price'>[];

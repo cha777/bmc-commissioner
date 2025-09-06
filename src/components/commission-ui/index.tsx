@@ -22,6 +22,7 @@ export const CommissionUI: FC = () => {
     date,
     disabledDates,
     employeeList,
+    idleEmployeeCount,
     totalCommission,
     totalUnitsProduced,
     isNegativeCommissionsAllowed,
@@ -30,6 +31,7 @@ export const CommissionUI: FC = () => {
     isSubmitting,
     onDateUpdate,
     onEmployeeSelectionUpdate,
+    onIdleEmployeeCountUpdate,
     onNegativeCommissionAllowUpdate,
     onTotalQtyUpdate,
     onAdditionalPaymentUpdate,
@@ -44,6 +46,10 @@ export const CommissionUI: FC = () => {
 
     return disabledCalendarDates.some((date) => date.toDateString() === currentDateString);
   }, [date, disabledCalendarDates]);
+
+  const selectedEmployeeCount = useMemo(() => {
+    return employeeList.filter((employee) => employee.isSelected).length;
+  }, [employeeList]);
 
   return (
     <div className='relative grid auto-rows-max items-start py-2 gap-4 lg:col-span-2 lg:gap-8'>
@@ -64,7 +70,9 @@ export const CommissionUI: FC = () => {
             <Separator />
             <EmployeeSelection
               employeeList={employeeList}
+              idleEmployeeCount={idleEmployeeCount}
               onEmployeeSelectionUpdate={onEmployeeSelectionUpdate}
+              onIdleEmployeeCountUpdate={onIdleEmployeeCountUpdate}
             />
             <Separator />
             <NegativeCommissionToggle
@@ -96,9 +104,11 @@ export const CommissionUI: FC = () => {
           size='sm'
           variant='default'
           disabled={
-            employeeList.filter((employee) => employee.isSelected).length === 0 ||
+            selectedEmployeeCount === 0 ||
             totalUnitsProduced === 0 ||
-            isSaleAlreadySubmitted
+            isSaleAlreadySubmitted ||
+            idleEmployeeCount > employeeList.length - selectedEmployeeCount ||
+            isSubmitting
           }
           onClick={submitData}
         >

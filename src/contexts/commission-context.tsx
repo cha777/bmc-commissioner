@@ -18,6 +18,7 @@ interface State {
   isNegativeCommissionsAllowed: boolean;
   totalCommission: number;
   employeeList: (EmployeeCommission & { isSelected: boolean })[];
+  idleEmployeeCount: number;
   disabledDates: string[];
   additionalPayment: number;
   notes: string;
@@ -32,6 +33,7 @@ const initialValues: State = {
   isNegativeCommissionsAllowed: true,
   totalCommission: 0,
   employeeList: [],
+  idleEmployeeCount: 0,
   disabledDates: [],
   additionalPayment: 0,
   notes: '',
@@ -41,6 +43,7 @@ export interface CommissionContextType extends State {
   onDateUpdate: (date: Date) => void;
   onTotalQtyUpdate: (qty: number) => void;
   onEmployeeSelectionUpdate: (id: Employee['id'], isSelected: boolean) => void;
+  onIdleEmployeeCountUpdate: (value: number) => void;
   onNegativeCommissionAllowUpdate: (isAllowed: boolean) => void;
   onAdditionalPaymentUpdate: (value: number) => void;
   onNotesUpdate: (value: string) => void;
@@ -51,6 +54,7 @@ export const CommissionContext = createContext<CommissionContextType>({
   onDateUpdate: () => {},
   onTotalQtyUpdate: () => {},
   onEmployeeSelectionUpdate: () => {},
+  onIdleEmployeeCountUpdate: () => {},
   onNegativeCommissionAllowUpdate: () => {},
   onAdditionalPaymentUpdate: () => {},
   onNotesUpdate: () => {},
@@ -121,6 +125,15 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     setTriggerCalculationEffect(true);
   }, []);
 
+  const onIdleEmployeeCountUpdate = useCallback((value: number) => {
+    setState((prev) => ({
+      ...prev,
+      idleEmployeeCount: value,
+    }));
+
+    setTriggerCalculationEffect(true);
+  }, []);
+
   const onNegativeCommissionAllowUpdate = useCallback((isAllowed: boolean) => {
     setState((prev) => ({
       ...prev,
@@ -161,6 +174,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         units: state.totalUnitsProduced,
         isNegativeCommissionsAllowed: state.isNegativeCommissionsAllowed,
         additionalPayment: state.additionalPayment,
+        idleEmployeeCount: state.idleEmployeeCount,
         notes: state.notes || '',
       });
 
@@ -227,7 +241,8 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
     const calculateEmployeeCommission = () => {
       const unitsProduced = state.totalUnitsProduced;
       const average = state.avgUnitPrice;
-      const employeeCount = state.employeeList.filter((employee) => employee.isSelected).length;
+      const employeeCount =
+        state.employeeList.filter((employee) => employee.isSelected).length + state.idleEmployeeCount;
       let totalCommission = 0;
 
       if (unitsProduced > 0) {
@@ -275,6 +290,7 @@ export const CommissionProvider: FC<CommissionProviderProps> = (props) => {
         onDateUpdate,
         onTotalQtyUpdate,
         onEmployeeSelectionUpdate,
+        onIdleEmployeeCountUpdate,
         onNegativeCommissionAllowUpdate,
         onAdditionalPaymentUpdate,
         onNotesUpdate,

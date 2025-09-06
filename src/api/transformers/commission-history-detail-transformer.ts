@@ -51,6 +51,7 @@ export class CommissionHistoryDetailTransformer {
       rates,
       isNegativeCommissionsAllowed: record.is_negative_allowed,
       additionalPayment: record.additional_payment,
+      idleEmployeeCount: record.idle_employee_count,
       notes: record.notes,
       created: record.created,
       updated: record.updated,

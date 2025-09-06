@@ -11,6 +11,7 @@ interface SubmitCommissionData {
   units: number;
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
+  idleEmployeeCount: number;
   notes: string;
 }
 
@@ -20,6 +21,7 @@ interface EditCommissionData {
   units: number;
   isNegativeCommissionsAllowed: boolean;
   additionalPayment: number;
+  idleEmployeeCount: number;
   notes: string;
 }
 
@@ -100,6 +102,7 @@ const _createSaleRecord = async (data: SubmitCommissionData) => {
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
     additional_payment: data.additionalPayment,
+    idle_employee_count: data.idleEmployeeCount,
     notes: data.notes,
   });
 
@@ -135,6 +138,7 @@ const _updateSaleRecord = async (data: EditCommissionData) => {
     })),
     is_negative_allowed: data.isNegativeCommissionsAllowed,
     additional_payment: data.additionalPayment,
+    idle_employee_count: data.idleEmployeeCount,
     notes: data.notes,
   });
 };
