@@ -32,7 +32,10 @@ export default function RecordEntry() {
 
   // Auto-calculate preview
   const preview = useMemo(() => {
-    if (activeEmployees.length > 0 && (Object.values(production).some((v) => v > 0) || disableNegative || parseFloat(bonus) > 0)) {
+    if (
+      activeEmployees.length > 0 &&
+      (Object.values(production).some((v) => v > 0) || disableNegative || parseFloat(bonus) > 0)
+    ) {
       const entries = Object.entries(production).map(([id, units]) => ({ metal_id: id, units }));
       return createDailyRecordSnapshot(
         date,
@@ -44,7 +47,7 @@ export default function RecordEntry() {
         note,
         disableNegative,
         parseFloat(bonus) || 0,
-        parseInt(idleEmployees) || 0
+        parseInt(idleEmployees) || 0,
       );
     }
 
@@ -93,7 +96,7 @@ export default function RecordEntry() {
             >
               <div>
                 <p className='font-medium'>{metal.name}</p>
-                <p className='text-[10px] text-muted-foreground'>{formatNumber(metal.current_price)} / unit</p>
+                <p className='text-[10px] text-muted-foreground'>{formatNumber(metal.price)} / unit</p>
               </div>
               <div className='flex items-center gap-3'>
                 <input
@@ -127,8 +130,18 @@ export default function RecordEntry() {
               {activeEmployees.length} Selected
             </span>
             <div className='flex gap-3'>
-              <button onClick={() => setActiveEmployees(employees.map(e => e.id))} className='text-[10px] uppercase font-bold text-primary hover:underline'>Select All</button>
-              <button onClick={() => setActiveEmployees([])} className='text-[10px] uppercase font-bold text-primary hover:underline'>Clear All</button>
+              <button
+                onClick={() => setActiveEmployees(employees.map((e) => e.id))}
+                className='text-[10px] uppercase font-bold text-primary hover:underline'
+              >
+                Select All
+              </button>
+              <button
+                onClick={() => setActiveEmployees([])}
+                className='text-[10px] uppercase font-bold text-primary hover:underline'
+              >
+                Clear All
+              </button>
             </div>
           </div>
           <div className='flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1 scrollbar-hide'>
@@ -144,10 +157,10 @@ export default function RecordEntry() {
                     'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
                     isSelected
                       ? 'bg-primary text-primary-foreground neon-glow'
-                      : 'bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10'
+                      : 'bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10',
                   )}
                 >
-                  {emp.name} <span className='opacity-60 ml-1'>W:{emp.current_weight}</span>
+                  {emp.name} <span className='opacity-60 ml-1'>W:{emp.weight}</span>
                 </button>
               );
             })}
@@ -197,11 +210,15 @@ export default function RecordEntry() {
             />
             <div className='space-y-1'>
               <p className='text-sm font-medium'>Disable Negative Commissions</p>
-              <p className='text-[10px] text-muted-foreground'>Prevents negative payouts when production is zero or below minimum thresholds (e.g. during repairs).</p>
+              <p className='text-[10px] text-muted-foreground'>
+                Prevents negative payouts when production is zero or below minimum thresholds (e.g. during repairs).
+              </p>
             </div>
           </label>
           <div className='space-y-2 pt-2 border-t border-white/5'>
-            <label className='text-[10px] uppercase font-bold text-muted-foreground'>Additional Bonus per Weight Unit (B)</label>
+            <label className='text-[10px] uppercase font-bold text-muted-foreground'>
+              Additional Bonus per Weight Unit (B)
+            </label>
             <div className='flex items-center gap-2'>
               <input
                 type='number'
@@ -211,7 +228,9 @@ export default function RecordEntry() {
                 className='w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:border-primary transition-colors outline-none'
               />
             </div>
-            <p className='text-[10px] text-muted-foreground'>Each employee will receive Bonus = B × W (their weight factor).</p>
+            <p className='text-[10px] text-muted-foreground'>
+              Each employee will receive Bonus = B × W (their weight factor).
+            </p>
           </div>
         </div>
       </section>
@@ -250,7 +269,9 @@ export default function RecordEntry() {
                       {(pe.base_commission || 0) > 0 || (pe.bonus_amount || 0) > 0 ? (
                         <div className='text-[10px] text-muted-foreground flex gap-2'>
                           <span>Base: {formatNumber(pe.base_commission || 0)}</span>
-                          {pe.bonus_amount ? <span className='text-primary'>Bonus: +{formatNumber(pe.bonus_amount)}</span> : null}
+                          {pe.bonus_amount ? (
+                            <span className='text-primary'>Bonus: +{formatNumber(pe.bonus_amount)}</span>
+                          ) : null}
                         </div>
                       ) : null}
                     </div>

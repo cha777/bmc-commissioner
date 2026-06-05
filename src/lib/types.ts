@@ -1,7 +1,7 @@
 export interface Metal {
   id: string;
   name: string;
-  current_price: number;
+  price: number;
   created_at: string;
   updated_at: string;
 }
@@ -9,7 +9,7 @@ export interface Metal {
 export interface Employee {
   id: string;
   name: string;
-  current_weight: number;
+  weight: number;
   is_permanent?: boolean;
   created_at: string;
   updated_at: string;
@@ -19,7 +19,7 @@ export interface CommissionRate {
   id: string;
   min_units: number;
   max_units: number;
-  rate_percent: number;
+  rate: number;
   created_at: string;
   updated_at: string;
 }
@@ -51,4 +51,5 @@ export interface DailyRecord {
   additional_bonus_per_weight?: number;
   idle_employee_count?: number;
   created_at: string;
+  updated_at: string;
 }

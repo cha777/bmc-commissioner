@@ -45,18 +45,27 @@ export default function RecordDetailPage() {
 
   // Preview logic for editing
   const preview = useMemo(() => {
-    if (isEditing && activeEmployees.length > 0 && (Object.values(production).some((v) => v > 0) || disableNegative || parseFloat(bonus) > 0) && originalRecord) {
+    if (
+      isEditing &&
+      activeEmployees.length > 0 &&
+      (Object.values(production).some((v) => v > 0) || disableNegative || parseFloat(bonus) > 0) &&
+      originalRecord
+    ) {
       const entries = Object.entries(production).map(([id, units]) => ({ metal_id: id, units }));
 
-      const effectiveMetals = useLatestAdmin ? metals : metals.map(m => {
-        const hist = originalRecord.production_details.find(p => p.metal_id === m.id);
-        return hist ? { ...m, current_price: hist.snapshot_price } : m;
-      });
+      const effectiveMetals = useLatestAdmin
+        ? metals
+        : metals.map((m) => {
+            const hist = originalRecord.production_details.find((p) => p.metal_id === m.id);
+            return hist ? { ...m, price: hist.snapshot_price } : m;
+          });
 
-      const effectiveEmployees = useLatestAdmin ? employees : employees.map(e => {
-        const hist = originalRecord.employees.find(pe => pe.employee_id === e.id);
-        return hist ? { ...e, current_weight: hist.snapshot_weight } : e;
-      });
+      const effectiveEmployees = useLatestAdmin
+        ? employees
+        : employees.map((e) => {
+            const hist = originalRecord.employees.find((pe) => pe.employee_id === e.id);
+            return hist ? { ...e, weight: hist.snapshot_weight } : e;
+          });
 
       const effectiveRates = useLatestAdmin ? rates : originalRecord.snapshot_rates_json;
       const effectiveAvgPrice = useLatestAdmin ? undefined : originalRecord.snapshot_avg_price;
@@ -72,14 +81,28 @@ export default function RecordDetailPage() {
         disableNegative,
         parseFloat(bonus) || 0,
         parseInt(idleEmployees) || 0,
-        effectiveAvgPrice
+        effectiveAvgPrice,
       );
 
       return { ...snap, id: originalRecord.id }; // Preserve ID
     }
 
     return null;
-  }, [production, activeEmployees, date, isEditing, metals, employees, rates, originalRecord, note, disableNegative, bonus, idleEmployees, useLatestAdmin]);
+  }, [
+    production,
+    activeEmployees,
+    date,
+    isEditing,
+    metals,
+    employees,
+    rates,
+    originalRecord,
+    note,
+    disableNegative,
+    bonus,
+    idleEmployees,
+    useLatestAdmin,
+  ]);
 
   if (!originalRecord) return <div className='p-10 text-center'>Record not found.</div>;
 
@@ -178,8 +201,18 @@ export default function RecordDetailPage() {
                     {activeEmployees.length} Selected
                   </span>
                   <div className='flex gap-3'>
-                    <button onClick={() => setActiveEmployees(employees.map(e => e.id))} className='text-[10px] uppercase font-bold text-primary hover:underline'>Select All</button>
-                    <button onClick={() => setActiveEmployees([])} className='text-[10px] uppercase font-bold text-primary hover:underline'>Clear All</button>
+                    <button
+                      onClick={() => setActiveEmployees(employees.map((e) => e.id))}
+                      className='text-[10px] uppercase font-bold text-primary hover:underline'
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setActiveEmployees([])}
+                      className='text-[10px] uppercase font-bold text-primary hover:underline'
+                    >
+                      Clear All
+                    </button>
                   </div>
                 </div>
                 <div className='flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1 scrollbar-hide'>
@@ -193,7 +226,7 @@ export default function RecordDetailPage() {
                         }
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${isSelected ? 'bg-primary text-primary-foreground neon-glow' : 'bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10'}`}
                       >
-                        {emp.name} <span className='opacity-60 ml-1'>W:{emp.current_weight}</span>
+                        {emp.name} <span className='opacity-60 ml-1'>W:{emp.weight}</span>
                       </button>
                     );
                   })}
@@ -241,11 +274,15 @@ export default function RecordDetailPage() {
                   />
                   <div className='space-y-1'>
                     <p className='text-sm font-medium'>Disable Negative Commissions</p>
-                    <p className='text-[10px] text-muted-foreground'>Prevents negative payouts when production is zero or below minimum thresholds.</p>
+                    <p className='text-[10px] text-muted-foreground'>
+                      Prevents negative payouts when production is zero or below minimum thresholds.
+                    </p>
                   </div>
                 </label>
                 <div className='space-y-2 pt-2 border-t border-white/5'>
-                  <label className='text-[10px] uppercase font-bold text-muted-foreground'>Additional Bonus per Weight Unit (B)</label>
+                  <label className='text-[10px] uppercase font-bold text-muted-foreground'>
+                    Additional Bonus per Weight Unit (B)
+                  </label>
                   <div className='flex items-center gap-2'>
                     <input
                       type='number'
@@ -255,7 +292,9 @@ export default function RecordDetailPage() {
                       className='w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:border-primary transition-colors outline-none'
                     />
                   </div>
-                  <p className='text-[10px] text-muted-foreground'>Each employee will receive Bonus = B × W (their weight factor).</p>
+                  <p className='text-[10px] text-muted-foreground'>
+                    Each employee will receive Bonus = B × W (their weight factor).
+                  </p>
                 </div>
               </div>
               <div className='glass-card rounded-2xl p-5 space-y-4 border border-white/10 mt-4'>
@@ -268,7 +307,9 @@ export default function RecordDetailPage() {
                   />
                   <div className='space-y-1'>
                     <p className='text-sm font-medium'>Use Latest Admin Data</p>
-                    <p className='text-[10px] text-muted-foreground'>Recalculates payout using today&#39;s Metal Prices, Employee Weights, and Commission Rates.</p>
+                    <p className='text-[10px] text-muted-foreground'>
+                      Recalculates payout using today&#39;s Metal Prices, Employee Weights, and Commission Rates.
+                    </p>
                   </div>
                 </label>
               </div>
@@ -316,7 +357,8 @@ export default function RecordDetailPage() {
               <div className='bg-white/5 p-4 rounded-2xl border border-white/5'>
                 <p className='text-[10px] uppercase font-black text-muted-foreground mb-1'>Total Production</p>
                 <p className='text-2xl font-black text-white'>
-                  {formatNumber(originalRecord.total_units, 0)} <span className='text-sm font-normal text-muted-foreground'>Units</span>
+                  {formatNumber(originalRecord.total_units, 0)}{' '}
+                  <span className='text-sm font-normal text-muted-foreground'>Units</span>
                 </p>
               </div>
               <div className='bg-white/5 p-4 rounded-2xl border border-white/5'>
@@ -389,7 +431,9 @@ export default function RecordDetailPage() {
                         {(pe.base_commission || 0) > 0 || (pe.bonus_amount || 0) > 0 ? (
                           <div className='text-[9px] text-muted-foreground mt-1 flex gap-2 justify-end'>
                             <span>Base: {formatNumber(pe.base_commission || 0)}</span>
-                            {pe.bonus_amount ? <span className='text-primary'>Bonus: +{formatNumber(pe.bonus_amount)}</span> : null}
+                            {pe.bonus_amount ? (
+                              <span className='text-primary'>Bonus: +{formatNumber(pe.bonus_amount)}</span>
+                            ) : null}
                           </div>
                         ) : null}
                       </div>

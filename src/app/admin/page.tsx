@@ -106,10 +106,10 @@ function MetalsManager({
   const handleSave = () => {
     if (!name || !price) return;
     if (editId) {
-      onUpdate({ id: editId, name, current_price: parseFloat(price) });
+      onUpdate({ id: editId, name, price: parseFloat(price) });
       setEditId(null);
     } else {
-      onAdd({ id: crypto.randomUUID(), name, current_price: parseFloat(price) } as Metal);
+      onAdd({ id: crypto.randomUUID(), name, price: parseFloat(price) } as Metal);
     }
     setName('');
     setPrice('');
@@ -118,7 +118,7 @@ function MetalsManager({
   const startEdit = (m: Metal) => {
     setEditId(m.id);
     setName(m.name);
-    setPrice(m.current_price.toString());
+    setPrice(m.price.toString());
   };
 
   return (
@@ -172,7 +172,7 @@ function MetalsManager({
           >
             <div className='space-y-1'>
               <p className='font-bold text-sm tracking-tight'>{m.name}</p>
-              <p className='text-lg font-black text-primary'>{formatNumber(m.current_price || 0)}</p>
+              <p className='text-lg font-black text-primary'>{formatNumber(m.price || 0)}</p>
               <div className='flex items-center gap-3 pt-1'>
                 <Timestamp
                   label='Created'
@@ -224,13 +224,13 @@ function EmployeesManager({
   const handleSave = () => {
     if (!name || !weight) return;
     if (editId) {
-      onUpdate({ id: editId, name, current_weight: parseFloat(weight), is_permanent: isPermanent });
+      onUpdate({ id: editId, name, weight: parseFloat(weight), is_permanent: isPermanent });
       setEditId(null);
     } else {
       onAdd({
         id: crypto.randomUUID(),
         name,
-        current_weight: parseFloat(weight),
+        weight: parseFloat(weight),
         is_permanent: isPermanent,
       } as Employee);
     }
@@ -242,7 +242,7 @@ function EmployeesManager({
   const startEdit = (e: Employee) => {
     setEditId(e.id);
     setName(e.name);
-    setWeight(e.current_weight.toString());
+    setWeight(e.weight.toString());
     setIsPermanent(e.is_permanent ?? true);
   };
 
@@ -320,7 +320,7 @@ function EmployeesManager({
                   {(e.is_permanent ?? true) ? 'permanent' : 'part-time'}
                 </span>
               </p>
-              <p className='text-lg font-black text-amber-400'>Factor: {e.current_weight}</p>
+              <p className='text-lg font-black text-amber-400'>Factor: {e.weight}</p>
               <div className='flex items-center gap-3 pt-1'>
                 <Timestamp
                   label='Joined'
@@ -374,7 +374,7 @@ function RatesManager({
     const payload = {
       min_units: parseFloat(min),
       max_units: parseFloat(max),
-      rate_percent: parseFloat(percent),
+      rate: parseFloat(percent),
     };
     if (editId) {
       onUpdate({ ...payload, id: editId });
@@ -449,7 +449,7 @@ function RatesManager({
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-3'>
                   <div className='bg-primary/20 border border-primary/30 rounded-lg px-3 py-1 font-black text-primary text-xs'>
-                    {r.rate_percent}%
+                    {r.rate}%
                   </div>
                   <div className='text-xs'>
                     <span className='text-muted-foreground mr-1'>Band:</span>
@@ -464,7 +464,7 @@ function RatesManager({
                       setEditId(r.id);
                       setMin(r.min_units.toString());
                       setMax(r.max_units.toString());
-                      setPercent(r.rate_percent.toString());
+                      setPercent(r.rate.toString());
                     }}
                     className='p-1.5 text-muted-foreground hover:text-primary transition-colors'
                   >
