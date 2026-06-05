@@ -1,16 +1,10 @@
-import { type ClassValue, clsx } from 'clsx';
+import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-export const cn = (...inputs: ClassValue[]) => {
+export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-};
+}
 
-export const wait = (time: number) => new Promise((res) => setTimeout(res, time));
-
-export const adjustToDateStart = (date: Date) => {
-  date.setHours(0, 0, 0, 0);
-};
-
-export const adjustToDateEnd = (date: Date) => {
-  date.setHours(23, 59, 59, 99);
-};
+export function formatNumber(num: number, decimals: number = 2): string {
+  return num.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
