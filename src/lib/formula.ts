@@ -5,7 +5,7 @@ import { Metal, CommissionRate, Employee, DailyRecord, ProductionDetail, RecordE
  */
 export const calculateAveragePrice = (metals: Metal[]): number => {
   if (metals.length === 0) return 0;
-  const total = metals.reduce((acc, m) => acc + m.current_price, 0);
+  const total = metals.reduce((acc, m) => acc + m.price, 0);
   return total / metals.length;
 };
 
@@ -16,22 +16,26 @@ export const calculateTotalCommissionPool = (
   unitsProduced: number,
   avgUnitPrice: number,
   rates: CommissionRate[],
-  isNegativeCommissionsAllowed: boolean
+  isNegativeCommissionsAllowed: boolean,
 ): number => {
   let totalCommission = 0;
   if (unitsProduced <= 0) return 0;
 
-  // Split bands: negative rate_percent is a penalty band, positive is a reward band.
-  const negativeCommissionBands = rates.filter(r => r.rate_percent < 0).sort((a, b) => a.min_units - b.min_units);
-  const positiveCommissionBands = rates.filter(r => r.rate_percent >= 0).sort((a, b) => a.min_units - b.min_units);
+  // Split bands: negative rate is a penalty band, positive is a reward band.
+  const negativeCommissionBands = rates.filter((r) => r.rate < 0).sort((a, b) => a.min_units - b.min_units);
+  const positiveCommissionBands = rates.filter((r) => r.rate >= 0).sort((a, b) => a.min_units - b.min_units);
 
   // If we fall into a negative tier (units produced is less than or equal to the upper limit of the lowest negative band)
-  if (negativeCommissionBands.length > 0 && unitsProduced <= negativeCommissionBands[0].max_units && isNegativeCommissionsAllowed) {
+  if (
+    negativeCommissionBands.length > 0 &&
+    unitsProduced <= negativeCommissionBands[0].max_units &&
+    isNegativeCommissionsAllowed
+  ) {
     for (const band of negativeCommissionBands) {
       if (unitsProduced <= band.max_units) {
         const unitsInBand = band.max_units - Math.max(unitsProduced, band.min_units);
         if (unitsInBand > 0) {
-          totalCommission += avgUnitPrice * unitsInBand * (band.rate_percent / 100);
+          totalCommission += avgUnitPrice * unitsInBand * (band.rate / 100);
         }
       }
     }
@@ -42,7 +46,7 @@ export const calculateTotalCommissionPool = (
       if (unitsProduced > band.min_units) {
         const unitsInBand = Math.min(unitsProduced, band.max_units) - band.min_units;
         if (unitsInBand > 0) {
-          totalCommission += avgUnitPrice * unitsInBand * (band.rate_percent / 100);
+          totalCommission += avgUnitPrice * unitsInBand * (band.rate / 100);
         }
       }
     }
@@ -65,7 +69,7 @@ export const createDailyRecordSnapshot = (
   disable_negative_commissions?: boolean,
   additional_bonus_per_weight?: number,
   idle_employee_count?: number,
-  override_avg_price?: number
+  override_avg_price?: number,
 ): DailyRecord => {
   const total_units = productionEntries.reduce((acc, p) => acc + p.units, 0);
   const snapshot_avg_price = override_avg_price ?? calculateAveragePrice(allMetals);
@@ -75,7 +79,7 @@ export const createDailyRecordSnapshot = (
     total_units,
     snapshot_avg_price,
     allRates,
-    !disable_negative_commissions
+    !disable_negative_commissions,
   );
 
   const production_details: ProductionDetail[] = productionEntries.map((p) => {
@@ -83,13 +87,13 @@ export const createDailyRecordSnapshot = (
     return {
       metal_id: p.metal_id,
       units: p.units,
-      snapshot_price: metal?.current_price || 0,
+      snapshot_price: metal?.price || 0,
     };
   });
 
   const employees: RecordEmployee[] = activeEmployeeIds.map((id) => {
     const emp = allEmployees.find((e) => e.id === id);
-    const weight = emp?.current_weight || 0;
+    const weight = emp?.weight || 0;
 
     // (totalCommission * weight) / employeeCount
     let base_commission = 0;
@@ -127,5 +131,6 @@ export const createDailyRecordSnapshot = (
     additional_bonus_per_weight,
     idle_employee_count,
     created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
 };

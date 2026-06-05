@@ -15,6 +15,8 @@ const NAV_ITEMS = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname === '/login') return null;
+
   return (
     <nav className='fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-lg glass-card rounded-3xl p-2 z-50'>
       <div className='flex items-center justify-around'>

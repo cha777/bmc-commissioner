@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { BottomNav } from '@/components/bottom-nav';
+import { SyncProvider } from '@/components/sync-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -30,8 +31,10 @@ export default function RootLayout({
           <div className='absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px]' />
           <div className='absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-destructive/10 blur-[120px]' />
         </div>
-        <main className='h-screen flex flex-col pb-20 overflow-y-auto relative z-10'>{children}</main>
-        <BottomNav />
+        <SyncProvider>
+          <main className='h-[calc(100vh-3rem)] flex flex-col pb-20 overflow-y-auto relative z-10'>{children}</main>
+          <BottomNav />
+        </SyncProvider>
       </body>
     </html>
   );
