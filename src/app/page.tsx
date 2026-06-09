@@ -128,7 +128,7 @@ export default function Dashboard() {
           value={formatNumber(stats.units, 0)}
           icon={Scale}
           growth={stats.unitsGrowth}
-          suffix=' Tons'
+          suffix=' Cubes'
           color='text-primary'
         />
         <KpiCard
@@ -160,8 +160,8 @@ export default function Dashboard() {
             <div className='flex items-center gap-1.5'>
               <div className='w-2 h-2 rounded-full bg-primary' /> Current
             </div>
-            <div className='flex items-center gap-1.5 text-white/30'>
-              <div className='w-2 h-2 rounded-full bg-white/20' /> Previous
+            <div className='flex items-center gap-1.5 text-white/60'>
+              <div className='w-2 h-2 rounded-full bg-white/60' /> Previous
             </div>
           </div>
         </div>
@@ -215,7 +215,8 @@ export default function Dashboard() {
               <Area
                 type='monotone'
                 dataKey='previous'
-                stroke='rgba(255,255,255,0.1)'
+                name='Previous'
+                stroke='rgba(255,255,255,0.6)'
                 strokeWidth={2}
                 fill='transparent'
                 strokeDasharray='5 5'
@@ -223,6 +224,7 @@ export default function Dashboard() {
               <Area
                 type='monotone'
                 dataKey='current'
+                name='Current'
                 stroke='oklch(0.75 0.2 190)'
                 strokeWidth={3}
                 fillOpacity={1}

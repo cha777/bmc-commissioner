@@ -45,13 +45,14 @@ export default function StatsPage() {
       if (selectedEmpId) {
         return {
           date,
-          earned: r.employees.find((e) => e.employee_id === selectedEmpId)?.commission_earned || 0,
+          earned:
+            Math.round((r.employees.find((e) => e.employee_id === selectedEmpId)?.commission_earned || 0) * 100) / 100,
         };
       } else {
         // Total for all employees
         return {
           date,
-          total: r.employees.reduce((acc, e) => acc + e.commission_earned, 0),
+          total: Math.round(r.employees.reduce((acc, e) => acc + e.commission_earned, 0) * 100) / 100,
         };
       }
     });
@@ -120,7 +121,9 @@ export default function StatsPage() {
                 />
                 <Bar
                   dataKey={selectedEmpId ? 'earned' : 'total'}
+                  name={selectedEmpId ? 'Earnings' : 'Total Payout'}
                   radius={[4, 4, 0, 0]}
+                  fill='var(--primary)'
                 >
                   {chartData.map((entry, index) => (
                     <Cell
