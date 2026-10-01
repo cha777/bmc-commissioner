@@ -107,7 +107,6 @@ export const CommissionUI: FC = () => {
             selectedEmployeeCount === 0 ||
             totalUnitsProduced === 0 ||
             isSaleAlreadySubmitted ||
-            idleEmployeeCount > employeeList.length - selectedEmployeeCount ||
             isSubmitting
           }
           onClick={submitData}
